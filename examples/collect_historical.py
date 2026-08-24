@@ -4,7 +4,7 @@ import argparse
 import asyncio
 from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Protocol
 from zoneinfo import ZoneInfo
 
@@ -19,6 +19,7 @@ from thermalshift.fortyguard.client import FortyGuardClient
 from thermalshift.fortyguard.diagnostics import diagnose_failure
 from thermalshift.fortyguard.historical import HistoricalTemperatureService
 from thermalshift.fortyguard.payloads import build_historical_heatmap_payload
+from thermalshift.replay.plan import CALIBRATION_INSTANTS
 from thermalshift.thermal.calibration import (
     CalibrationError,
     calculate_calibration_diagnostics,
@@ -65,15 +66,7 @@ class ObservationService(Protocol):
 
 def get_calibration_instants() -> tuple[datetime, ...]:
     """Return seven seasonally and diurnally varied UTC instants in 2024."""
-    return (
-        datetime(2024, 1, 15, 6, tzinfo=UTC),
-        datetime(2024, 3, 20, 15, tzinfo=UTC),
-        datetime(2024, 6, 1, 21, tzinfo=UTC),
-        datetime(2024, 7, 15, 18, tzinfo=UTC),
-        datetime(2024, 8, 31, 3, tzinfo=UTC),
-        datetime(2024, 10, 15, 12, tzinfo=UTC),
-        datetime(2024, 12, 15, 23, tzinfo=UTC),
-    )
+    return CALIBRATION_INSTANTS
 
 
 def build_collection_plan(

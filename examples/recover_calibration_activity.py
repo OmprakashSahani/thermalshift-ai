@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Protocol
 
-from examples.collect_historical import get_calibration_instants
 from thermalshift.config import get_settings
 from thermalshift.domain.models import Site
 from thermalshift.domain.sites import get_default_sites
@@ -16,6 +15,7 @@ from thermalshift.fortyguard.client import FortyGuardClient
 from thermalshift.fortyguard.diagnostics import diagnose_failure
 from thermalshift.fortyguard.models import ActivityStatus
 from thermalshift.fortyguard.payloads import build_historical_heatmap_payload
+from thermalshift.replay.plan import CALIBRATION_INSTANTS
 
 CONFIRMATION_VALUE = "RECOVER_EXISTING_FORTYGUARD_CALIBRATION"
 
@@ -41,7 +41,7 @@ def resolve_calibration_target(site_id: str, requested_utc: datetime) -> Calibra
     matches = [
         CalibrationTarget(site, instant)
         for site in get_default_sites()
-        for instant in get_calibration_instants()
+        for instant in CALIBRATION_INSTANTS
         if site.site_id == site_id and instant == requested_utc
     ]
     if len(matches) != 1:

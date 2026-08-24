@@ -1,6 +1,8 @@
 """Offline tests for one-shot recovery of existing calibration activities."""
 
 import asyncio
+import subprocess
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -24,6 +26,22 @@ CANONICAL_TIME = datetime(2024, 12, 15, 23, tzinfo=UTC)
 
 def response(data: dict[str, object]) -> httpx.Response:
     return httpx.Response(200, json={"error": False, "data": data})
+
+
+def test_direct_script_help_runs_from_repository_root_without_network() -> None:
+    repository_root = Path(__file__).resolve().parents[1]
+
+    completed = subprocess.run(
+        [sys.executable, "examples/recover_calibration_activity.py", "--help"],
+        cwd=repository_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0
+    assert "ModuleNotFoundError" not in completed.stderr
+    assert "--activity-id" in completed.stdout
 
 
 def test_invalid_confirmation_and_noncanonical_target_make_zero_requests(capsys) -> None:
