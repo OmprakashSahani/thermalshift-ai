@@ -48,3 +48,21 @@ Replay inherits the benchmark layer's same-input controls and fairness rule:
 direct total-exposure percentages require identical scheduled workload sets.
 Ambient-temperature-derived stress does not establish GPU or server-inlet
 temperature, PUE, cooling energy, electricity use or savings, or water use.
+
+## Collection safety
+
+Replay collection is dry-run by default. Real collection requires `--submit`,
+the exact `COLLECT_FORTYGUARD_REPLAY` confirmation, and a positive bounded
+`--max-api-calls` value supplied explicitly. The conservative limit shown by
+default is 4. Cache hits never consume that new-call budget. Processing is
+sequential in the predeclared hour-major plan order, and
+each successful response is persisted immediately by the cache-first
+historical service. One failure stops all later new submissions without
+discarding earlier successes; exception details and credentials are not
+printed.
+
+The collector never starts a benchmark automatically. Original 4-by-7
+calibration collection remains the responsibility of the separate calibration
+collector; replay collection only displays its readiness. Replay windows,
+plans, and modeled workloads must not be changed in response to observed
+temperature results.
