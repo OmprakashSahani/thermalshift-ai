@@ -30,6 +30,30 @@ class FortyGuardHTTPError(FortyGuardError):
 class FortyGuardResponseError(FortyGuardError):
     """Raised when FortyGuard returns an error or malformed response."""
 
+    _REASON_CODES = frozenset(
+        {
+            "non_json_response",
+            "unexpected_envelope",
+            "api_error",
+            "missing_data",
+            "missing_activity_id",
+            "malformed_activity_status",
+            "completed_missing_result",
+        }
+    )
+
+    def __init__(
+        self,
+        reason_code: str,
+        *,
+        validation_paths: tuple[tuple[str, ...], ...] = (),
+    ) -> None:
+        if reason_code not in self._REASON_CODES:
+            raise ValueError("unsupported FortyGuard response error reason")
+        self.reason_code = reason_code
+        self.validation_paths = validation_paths
+        super().__init__(f"FortyGuard response error: {reason_code}")
+
 
 class FortyGuardClient:
     """Submit heatmaps and retrieve activity status from FortyGuard."""
@@ -75,7 +99,9 @@ class FortyGuardClient:
         data = self._require_data(response_payload)
         activity_id = data.get("activity_id")
         if not isinstance(activity_id, str) or not activity_id.strip():
-            raise FortyGuardResponseError("FortyGuard response is missing a valid activity_id")
+            raise FortyGuardResponseError(
+                "missing_activity_id", validation_paths=(("activity_id",),)
+            )
         return activity_id
 
     async def get_status(self, activity_id: str) -> ActivityStatus:
@@ -88,9 +114,21 @@ class FortyGuardClient:
         try:
             status = ActivityStatus.model_validate(data)
         except ValidationError as exc:
-            raise FortyGuardResponseError("FortyGuard returned malformed activity status") from exc
+            paths = tuple(
+                sorted(
+                    {
+                        tuple(str(component) for component in error["loc"])
+                        for error in exc.errors()
+                    }
+                )
+            )
+            raise FortyGuardResponseError(
+                "malformed_activity_status", validation_paths=paths
+            ) from exc
         if status.status.casefold() == "completed" and status.result is None:
-            raise FortyGuardResponseError("Completed FortyGuard activity is missing its result")
+            raise FortyGuardResponseError(
+                "completed_missing_result", validation_paths=(("result",),)
+            )
         return status
 
     async def _request(self, method: str, path: str, **kwargs: Any) -> dict[str, Any]:
@@ -105,20 +143,17 @@ class FortyGuardClient:
         try:
             payload = response.json()
         except ValueError as exc:
-            raise FortyGuardResponseError("FortyGuard returned a non-JSON response") from exc
+            raise FortyGuardResponseError("non_json_response") from exc
 
         if not isinstance(payload, dict) or not isinstance(payload.get("error"), bool):
-            raise FortyGuardResponseError("FortyGuard returned an unexpected response structure")
+            raise FortyGuardResponseError("unexpected_envelope")
         if payload["error"]:
-            message = payload.get("message")
-            safe_message = message if isinstance(message, str) and message.strip() else "API error"
-            safe_message = safe_message.replace(self._api_key, "[REDACTED]")
-            raise FortyGuardResponseError(f"FortyGuard API error: {safe_message}")
+            raise FortyGuardResponseError("api_error")
         return payload
 
     @staticmethod
     def _require_data(payload: dict[str, Any]) -> dict[str, Any]:
         data = payload.get("data")
         if not isinstance(data, dict):
-            raise FortyGuardResponseError("FortyGuard response is missing valid data")
+            raise FortyGuardResponseError("missing_data")
         return data

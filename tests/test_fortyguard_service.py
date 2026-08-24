@@ -91,7 +91,12 @@ async def test_post_submission_http_error_retains_activity_and_status() -> None:
 
 @pytest.mark.asyncio
 async def test_post_submission_response_error_retains_activity() -> None:
-    client = FakeHeatmapClient(status_error=FortyGuardResponseError("fake secret"))
+    client = FakeHeatmapClient(
+        status_error=FortyGuardResponseError(
+            "malformed_activity_status",
+            validation_paths=(("result", "stats_data"),),
+        )
+    )
 
     with pytest.raises(FortyGuardStatusRequestError) as caught:
         await create_heatmap(client, {}, sleep=no_sleep)
@@ -99,7 +104,8 @@ async def test_post_submission_response_error_retains_activity() -> None:
     assert caught.value.activity_id == "returned-activity-id"
     assert caught.value.failure_kind == "response_error"
     assert caught.value.status_code is None
-    assert "fake secret" not in str(caught.value)
+    assert caught.value.response_reason == "malformed_activity_status"
+    assert caught.value.validation_paths == (("result", "stats_data"),)
 
 
 @pytest.mark.asyncio

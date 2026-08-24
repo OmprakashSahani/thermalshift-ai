@@ -26,6 +26,8 @@ class SafeFailureDiagnostic:
     failure_kind: FailureKind
     activity_id: str | None = None
     http_status: int | None = None
+    response_reason: str | None = None
+    validation_paths: tuple[tuple[str, ...], ...] = ()
 
     def output_fields(self) -> str:
         """Format only allow-listed structured values."""
@@ -34,6 +36,11 @@ class SafeFailureDiagnostic:
             fields.append(f"activity_id={self.activity_id}")
         if self.http_status is not None:
             fields.append(f"http_status={self.http_status}")
+        if self.response_reason is not None:
+            fields.append(f"response_reason={self.response_reason}")
+        if self.validation_paths:
+            rendered_paths = ",".join(".".join(path) for path in self.validation_paths)
+            fields.append(f"validation_paths={rendered_paths}")
         return " ".join(fields)
 
 
@@ -48,9 +55,15 @@ def diagnose_failure(error: RuntimeError | ValueError) -> SafeFailureDiagnostic:
             error.failure_kind,
             error.activity_id,
             error.status_code,
+            error.response_reason,
+            error.validation_paths,
         )
     if isinstance(error, FortyGuardHTTPError):
         return SafeFailureDiagnostic("http_error", http_status=error.status_code)
     if isinstance(error, FortyGuardResponseError):
-        return SafeFailureDiagnostic("response_error")
+        return SafeFailureDiagnostic(
+            "response_error",
+            response_reason=error.reason_code,
+            validation_paths=error.validation_paths,
+        )
     return SafeFailureDiagnostic("generic_error")

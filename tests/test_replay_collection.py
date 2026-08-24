@@ -354,16 +354,23 @@ async def test_failed_activity_exposes_safe_id_and_stops_later_new_calls(
             "failure_kind=http_error activity_id=activity-http http_status=429",
         ),
         (
-            FortyGuardStatusRequestError("activity-response", "response_error"),
-            "failure_kind=response_error activity_id=activity-response",
+            FortyGuardStatusRequestError(
+                "activity-response",
+                "response_error",
+                response_reason="malformed_activity_status",
+                validation_paths=(("result", "stats_data"),),
+            ),
+            "failure_kind=response_error activity_id=activity-response "
+            "response_reason=malformed_activity_status "
+            "validation_paths=result.stats_data",
         ),
         (
             FortyGuardHTTPError(500),
             "failure_kind=http_error http_status=500",
         ),
         (
-            FortyGuardResponseError("fake-secret-must-not-appear"),
-            "failure_kind=response_error",
+            FortyGuardResponseError("api_error"),
+            "failure_kind=response_error response_reason=api_error",
         ),
     ),
 )

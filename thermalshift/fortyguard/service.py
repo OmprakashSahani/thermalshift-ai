@@ -30,6 +30,8 @@ class FortyGuardStatusRequestError(RuntimeError):
         failure_kind: str,
         *,
         status_code: int | None = None,
+        response_reason: str | None = None,
+        validation_paths: tuple[tuple[str, ...], ...] = (),
     ) -> None:
         if not activity_id.strip():
             raise ValueError("activity_id must not be blank")
@@ -38,6 +40,8 @@ class FortyGuardStatusRequestError(RuntimeError):
         self.activity_id = activity_id
         self.failure_kind = failure_kind
         self.status_code = status_code
+        self.response_reason = response_reason
+        self.validation_paths = validation_paths
         super().__init__(f"FortyGuard status request failed for activity {activity_id}")
 
 async def create_heatmap(
@@ -56,7 +60,12 @@ async def create_heatmap(
             activity_id, "http_error", status_code=exc.status_code
         ) from exc
     except FortyGuardResponseError as exc:
-        raise FortyGuardStatusRequestError(activity_id, "response_error") from exc
+        raise FortyGuardStatusRequestError(
+            activity_id,
+            "response_error",
+            response_reason=exc.reason_code,
+            validation_paths=exc.validation_paths,
+        ) from exc
     if status.result is None:
         raise RuntimeError("Completed FortyGuard activity is missing its result")
     return status.result

@@ -47,3 +47,14 @@ Neither terminal failures nor timeouts are automatically retried. In particular,
 a timed-out remote activity may still be running, so blind resubmission could
 duplicate work. Following FortyGuard's recommendation for failed tasks, known
 activity IDs are recorded for diagnosis or support.
+
+A `response_error` with an activity ID means submission succeeded, but the
+subsequent status response could not be safely interpreted under the client
+contract. It is not a terminal activity failure. Safe response reason codes and
+validation field paths may be shown, but rejected values, raw bodies, and server
+messages are not.
+
+For diagnosis, `examples/check_fortyguard_activity.py` requires an existing
+activity ID and the exact `CHECK_EXISTING_FORTYGUARD_ACTIVITY` confirmation. It
+makes exactly one status GET, performs no polling or sleeping, never submits a
+replacement task, and does not mutate the cache.
