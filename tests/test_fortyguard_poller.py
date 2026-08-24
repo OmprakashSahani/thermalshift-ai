@@ -101,10 +101,23 @@ async def test_timeout_raises_after_delays() -> None:
     sleep = SleepRecorder()
     client = FakeStatusClient([status("Processing"), status("Processing")])
 
-    with pytest.raises(FortyGuardPollingTimeout):
+    with pytest.raises(FortyGuardPollingTimeout) as caught:
         await wait_for_completion(client, "activity-123", delays=(1.0,), sleep=sleep)
 
+    assert caught.value.activity_id == "activity-123"
     assert sleep.delays == [1.0]
+
+
+@pytest.mark.asyncio
+async def test_timeout_retains_id_after_existing_default_delay_sequence() -> None:
+    sleep = SleepRecorder()
+    client = FakeStatusClient([status("Processing")] * 4)
+
+    with pytest.raises(FortyGuardPollingTimeout) as caught:
+        await wait_for_completion(client, "activity-123", sleep=sleep)
+
+    assert caught.value.activity_id == "activity-123"
+    assert sleep.delays == [3.0, 6.0, 12.0]
 
 
 @pytest.mark.asyncio

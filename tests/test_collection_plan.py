@@ -191,7 +191,9 @@ async def test_failure_stops_additional_new_submissions_and_hides_secret(tmp_pat
     assert summary.failed == 1
     assert summary.skipped == 26
     assert summary.remaining_uncached == 27
-    assert secret not in "\n".join(output)
+    rendered = "\n".join(output)
+    assert secret not in rendered
+    assert "status=FAILED failure_kind=generic_error" in rendered
 
 
 @pytest.mark.asyncio
@@ -214,7 +216,10 @@ async def test_failed_activity_prints_only_safe_structured_id(tmp_path: Path) ->
     assert summary.failed == 1
     assert summary.collected_successfully == 1
     assert summary.api_calls_made == 2
-    assert f"status=FAILED activity_id={activity_id}" in rendered
+    assert (
+        "status=FAILED failure_kind=terminal_activity_failed "
+        f"activity_id={activity_id}"
+    ) in rendered
     assert "api-secret-must-not-appear" not in rendered
 
 

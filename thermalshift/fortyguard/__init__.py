@@ -13,7 +13,7 @@ from thermalshift.fortyguard.poller import (
     FortyGuardPollingTimeout,
     wait_for_completion,
 )
-from thermalshift.fortyguard.service import create_heatmap
+from thermalshift.fortyguard.service import FortyGuardStatusRequestError, create_heatmap
 
 __all__ = [
     "ActivityStatus",
@@ -24,6 +24,7 @@ __all__ = [
     "FortyGuardPollingError",
     "FortyGuardPollingTimeout",
     "FortyGuardResponseError",
+    "FortyGuardStatusRequestError",
     "HeatmapResult",
     "create_heatmap",
     "wait_for_completion",

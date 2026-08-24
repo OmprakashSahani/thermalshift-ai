@@ -34,7 +34,16 @@ interpolation at the zero-based position `(n - 1) × q` in the sorted pooled sam
 Ambient observations and their modeled calibration diagnostics do not infer GPU temperature,
 server inlet temperature, cooling energy, PUE, water use, or electricity savings.
 
-Terminal `Failed` activities are not retried automatically. Following FortyGuard's
-recommendation to record activity IDs for failed tasks, collectors print the safe
-activity ID for diagnosis or support while suppressing credentials, raw response
-bodies, and arbitrary exception text.
+Collectors emit only allow-listed structured failure diagnostics:
+`terminal_activity_failed` means FortyGuard explicitly reported `Failed`;
+`polling_timeout` means ThermalShift exhausted its bounded local wait;
+`http_error` covers HTTP or transport failure; `response_error` means a response
+could not be safely validated; and `generic_error` covers another locally handled
+runtime or value failure. Activity IDs are retained after successful submission,
+and numeric HTTP status is retained when available. Credentials, raw response
+bodies, and arbitrary exception text remain suppressed.
+
+Neither terminal failures nor timeouts are automatically retried. In particular,
+a timed-out remote activity may still be running, so blind resubmission could
+duplicate work. Following FortyGuard's recommendation for failed tasks, known
+activity IDs are recorded for diagnosis or support.

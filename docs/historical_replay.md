@@ -61,10 +61,14 @@ historical service. One failure stops all later new submissions without
 discarding earlier successes; exception details and credentials are not
 printed.
 
-When FortyGuard reports a terminal `Failed` activity, it is not retried
-automatically. Consistent with FortyGuard documentation recommending that
-activity IDs be recorded for failed tasks, the collector prints that safe ID
-for diagnosis or support while credentials, raw responses, and arbitrary
+Failure output distinguishes `terminal_activity_failed`, `polling_timeout`,
+`http_error`, `response_error`, and `generic_error`. A terminal failure means
+FortyGuard explicitly reported `Failed`; a polling timeout means only that
+ThermalShift exhausted its bounded local wait. The remote activity may still
+continue after a timeout, so it is not blindly resubmitted because doing so
+could create duplicate work. Known activity IDs and numeric HTTP statuses are
+retained for diagnosis or support, consistent with FortyGuard guidance to
+record failed-task activity IDs. Credentials, raw responses, and arbitrary
 exception details remain suppressed.
 
 The collector never starts a benchmark automatically. Original 4-by-7

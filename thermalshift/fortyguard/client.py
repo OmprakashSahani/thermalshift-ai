@@ -17,6 +17,15 @@ class FortyGuardError(RuntimeError):
 class FortyGuardHTTPError(FortyGuardError):
     """Raised when an HTTP request to FortyGuard fails."""
 
+    def __init__(self, status_code: int | None = None) -> None:
+        self.status_code = status_code
+        message = (
+            f"FortyGuard returned HTTP {status_code}"
+            if status_code is not None
+            else "FortyGuard request failed"
+        )
+        super().__init__(message)
+
 
 class FortyGuardResponseError(FortyGuardError):
     """Raised when FortyGuard returns an error or malformed response."""
@@ -88,10 +97,10 @@ class FortyGuardClient:
         try:
             response = await self._client.request(method, path, **kwargs)
         except httpx.RequestError as exc:
-            raise FortyGuardHTTPError("FortyGuard request failed") from exc
+            raise FortyGuardHTTPError() from exc
 
         if response.is_error:
-            raise FortyGuardHTTPError(f"FortyGuard returned HTTP {response.status_code}")
+            raise FortyGuardHTTPError(response.status_code)
 
         try:
             payload = response.json()

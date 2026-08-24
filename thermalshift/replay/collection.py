@@ -8,8 +8,8 @@ from typing import Protocol
 from thermalshift.domain.models import Site, TemperatureObservation
 from thermalshift.domain.sites import get_default_sites
 from thermalshift.fortyguard.cache import HeatmapResultCache
+from thermalshift.fortyguard.diagnostics import diagnose_failure
 from thermalshift.fortyguard.payloads import build_historical_heatmap_payload
-from thermalshift.fortyguard.poller import FortyGuardActivityFailed
 
 from .adapter import load_calibration_status
 from .models import HistoricalReplayWindow
@@ -82,15 +82,11 @@ async def execute_replay_collection(
             observation = await service.get_historical_temperature(
                 site, entry.requested_utc
             )
-        except FortyGuardActivityFailed as exc:
+        except (RuntimeError, ValueError) as exc:
             failed += 1
             stop_new_submissions = True
-            output(f"{prefix} status=FAILED activity_id={exc.activity_id}")
-            continue
-        except (RuntimeError, ValueError):
-            failed += 1
-            stop_new_submissions = True
-            output(f"{prefix} status=FAILED")
+            diagnostic = diagnose_failure(exc)
+            output(f"{prefix} status=FAILED {diagnostic.output_fields()}")
             continue
 
         if cached:

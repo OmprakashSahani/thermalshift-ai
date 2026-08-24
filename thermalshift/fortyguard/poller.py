@@ -32,6 +32,12 @@ class FortyGuardActivityFailed(FortyGuardPollingError):
 class FortyGuardPollingTimeout(FortyGuardPollingError):
     """Raised when an activity remains processing after all polling delays."""
 
+    def __init__(self, activity_id: str) -> None:
+        if not activity_id.strip():
+            raise ValueError("activity_id must not be blank")
+        self.activity_id = activity_id
+        super().__init__(f"Polling ended before FortyGuard activity {activity_id} completed")
+
 
 async def wait_for_completion(
     client: StatusClient,
@@ -58,7 +64,7 @@ async def wait_for_completion(
     result = _evaluate(status, activity_id)
     if result is not None:
         return result
-    raise FortyGuardPollingTimeout("FortyGuard activity did not complete before polling ended")
+    raise FortyGuardPollingTimeout(activity_id)
 
 
 def _evaluate(status: ActivityStatus, activity_id: str) -> ActivityStatus | None:
