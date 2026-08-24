@@ -58,3 +58,9 @@ For diagnosis, `examples/check_fortyguard_activity.py` requires an existing
 activity ID and the exact `CHECK_EXISTING_FORTYGUARD_ACTIVITY` confirmation. It
 makes exactly one status GET, performs no polling or sleeping, never submits a
 replacement task, and does not mutate the cache.
+
+Its optional `--shape` mode safely summarizes type counts and lengths for the
+normal-distribution axes plus finite allow-listed temperature aggregates. It
+never exposes distribution members or `map_data`. This supports response-contract
+diagnosis only; inspecting a malformed response shape does not make that response
+valid under the existing schema.

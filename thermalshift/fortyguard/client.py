@@ -1,6 +1,8 @@
 """Asynchronous HTTP client for the known FortyGuard API contract."""
 
+import math
 from collections.abc import Mapping
+from dataclasses import dataclass
 from typing import Any, Self
 from urllib.parse import quote
 
@@ -53,6 +55,41 @@ class FortyGuardResponseError(FortyGuardError):
         self.reason_code = reason_code
         self.validation_paths = validation_paths
         super().__init__(f"FortyGuard response error: {reason_code}")
+
+
+@dataclass(frozen=True, slots=True)
+class ArrayShapeDiagnostic:
+    """Allow-listed type counts for an array without retaining its values."""
+
+    present: bool
+    length: int | None
+    number_count: int = 0
+    null_count: int = 0
+    string_count: int = 0
+    boolean_count: int = 0
+    object_count: int = 0
+    array_count: int = 0
+    other_count: int = 0
+    non_finite_number_count: int = 0
+
+
+@dataclass(frozen=True, slots=True)
+class ActivityStatusShapeDiagnostic:
+    """Sanitized structural summary of one raw activity status response."""
+
+    activity_id: str
+    returned_activity_id_matches: bool | None
+    status: str | None
+    result_present: bool
+    stats_data_present: bool
+    temperature_stats_present: bool
+    temperature_minimum_c: int | float | None
+    temperature_maximum_c: int | float | None
+    temperature_mean_c: int | float | None
+    temperature_standard_deviation_c: int | float | None
+    normal_distribution_present: bool
+    normal_x_axis: ArrayShapeDiagnostic
+    normal_y_axis: ArrayShapeDiagnostic
 
 
 class FortyGuardClient:
@@ -131,6 +168,17 @@ class FortyGuardClient:
             )
         return status
 
+    async def get_status_diagnostic_shape(
+        self, activity_id: str
+    ) -> ActivityStatusShapeDiagnostic:
+        """Read one status and return only allow-listed response-shape metadata."""
+        if not activity_id.strip():
+            raise ValueError("FortyGuard activity ID must not be blank")
+        safe_activity_id = quote(activity_id, safe="")
+        response_payload = await self._request("GET", f"/v1/status/{safe_activity_id}")
+        data = self._require_data(response_payload)
+        return _build_status_shape(activity_id, data)
+
     async def _request(self, method: str, path: str, **kwargs: Any) -> dict[str, Any]:
         try:
             response = await self._client.request(method, path, **kwargs)
@@ -157,3 +205,92 @@ class FortyGuardClient:
         if not isinstance(data, dict):
             raise FortyGuardResponseError("missing_data")
         return data
+
+
+def _build_status_shape(
+    requested_activity_id: str, data: dict[str, Any]
+) -> ActivityStatusShapeDiagnostic:
+    returned_id = data.get("activity_id")
+    returned_id_matches = (
+        returned_id == requested_activity_id if isinstance(returned_id, str) else None
+    )
+    status_value = data.get("status")
+    status = status_value if isinstance(status_value, str) else None
+    result = data.get("result")
+    result_present = result is not None
+    result_object = result if isinstance(result, dict) else None
+    stats_data = result_object.get("stats_data") if result_object is not None else None
+    stats_data_present = isinstance(stats_data, dict)
+    stats_object = stats_data if isinstance(stats_data, dict) else None
+    temperature_stats = (
+        stats_object.get("temperature_stats") if stats_object is not None else None
+    )
+    temperature_stats_present = isinstance(temperature_stats, dict)
+    temperature_object = temperature_stats if isinstance(temperature_stats, dict) else {}
+    distribution = (
+        stats_object.get("normal_temperature_distribution")
+        if stats_object is not None
+        else None
+    )
+    distribution_present = isinstance(distribution, dict)
+    distribution_object = distribution if isinstance(distribution, dict) else {}
+    return ActivityStatusShapeDiagnostic(
+        activity_id=requested_activity_id,
+        returned_activity_id_matches=returned_id_matches,
+        status=status,
+        result_present=result_present,
+        stats_data_present=stats_data_present,
+        temperature_stats_present=temperature_stats_present,
+        temperature_minimum_c=_finite_number(temperature_object.get("minimum")),
+        temperature_maximum_c=_finite_number(temperature_object.get("maximum")),
+        temperature_mean_c=_finite_number(temperature_object.get("mean")),
+        temperature_standard_deviation_c=_finite_number(
+            temperature_object.get("standard_deviation")
+        ),
+        normal_distribution_present=distribution_present,
+        normal_x_axis=_array_shape(distribution_object, "x_axis"),
+        normal_y_axis=_array_shape(distribution_object, "y_axis"),
+    )
+
+
+def _finite_number(value: Any) -> int | float | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return value if math.isfinite(value) else None
+
+
+def _array_shape(container: dict[str, Any], field_name: str) -> ArrayShapeDiagnostic:
+    if field_name not in container:
+        return ArrayShapeDiagnostic(present=False, length=None)
+    value = container[field_name]
+    if not isinstance(value, list):
+        return ArrayShapeDiagnostic(present=True, length=None)
+
+    counts = {
+        "number_count": 0,
+        "null_count": 0,
+        "string_count": 0,
+        "boolean_count": 0,
+        "object_count": 0,
+        "array_count": 0,
+        "other_count": 0,
+        "non_finite_number_count": 0,
+    }
+    for item in value:
+        if item is None:
+            counts["null_count"] += 1
+        elif isinstance(item, bool):
+            counts["boolean_count"] += 1
+        elif isinstance(item, (int, float)):
+            counts["number_count"] += 1
+            if not math.isfinite(item):
+                counts["non_finite_number_count"] += 1
+        elif isinstance(item, str):
+            counts["string_count"] += 1
+        elif isinstance(item, dict):
+            counts["object_count"] += 1
+        elif isinstance(item, list):
+            counts["array_count"] += 1
+        else:
+            counts["other_count"] += 1
+    return ArrayShapeDiagnostic(present=True, length=len(value), **counts)
