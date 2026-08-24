@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.test_fortyguard_models import completed_data
+from tests.test_fortyguard_models import completed_data, degenerate_null_data
 from thermalshift.fortyguard.cache import (
     FortyGuardCacheError,
     HeatmapResultCache,
@@ -75,3 +75,24 @@ def test_payload_with_sensitive_fields_is_rejected(tmp_path: Path) -> None:
 
     with pytest.raises(FortyGuardCacheError, match="credentials or headers"):
         cache.put({"headers": {"api-key": "must-not-be-stored"}}, sample_result())
+
+
+def test_degenerate_null_distribution_round_trips_without_schema_or_key_change(
+    tmp_path: Path,
+) -> None:
+    cache = HeatmapResultCache(tmp_path)
+    payload = {"granularity": 100, "date_time": {"start_date": "2024-12-15"}}
+    key_before = cache_key_for_payload(payload)
+    result = HeatmapResult.model_validate(degenerate_null_data()["result"])
+
+    path = cache.put(payload, result)
+    cached = cache.get(payload)
+
+    assert path.name == f"{key_before}.json"
+    assert cache_key_for_payload(payload) == key_before
+    assert cached is not None
+    assert cached.stats_data.normal_temperature_distribution.y_axis == [None] * 3
+    assert cached.stats_data.temperature_stats.mean == 6.21
+    record = json.loads(path.read_text(encoding="utf-8"))
+    assert record["cache_schema_version"] == 1
+    assert "api-key" not in path.read_text(encoding="utf-8").casefold()

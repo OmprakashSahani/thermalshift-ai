@@ -64,3 +64,23 @@ normal-distribution axes plus finite allow-listed temperature aggregates. It
 never exposes distribution members or `map_data`. This supports response-contract
 diagnosis only; inspecting a malformed response shape does not make that response
 valid under the existing schema.
+
+One completed response was observed with equal temperature minimum, maximum,
+and mean, zero standard deviation, a numeric normal-distribution x-axis, and an
+all-null normal-distribution y-axis. ThermalShift accepts this observed
+zero-variance representation only when the y-axis is non-empty and entirely
+null, both normal-distribution axes have equal length, standard deviation is
+zero, and minimum equals maximum equals mean. Arbitrary or mixed null
+distributions remain invalid. Nulls are preserved and are never converted into
+synthetic density values. `temperature_stats.mean` remains the historical
+observation source and the normal-distribution y-axis is not a scheduling input.
+This compatibility behavior reflects an observed response, not a universal
+FortyGuard contract guarantee.
+
+`examples/recover_calibration_activity.py` can associate an already completed
+activity only with its exact entry in the frozen four-by-seven calibration plan.
+With the exact `RECOVER_EXISTING_FORTYGUARD_CALIBRATION` confirmation, a cache
+miss causes one status GET and no polling, retry, sleep, replacement POST, or
+cache-key change. A cache hit makes no request. Only a matching, validated
+`Completed` result is stored; raw response content, distributions, `map_data`,
+and credentials are never printed.
