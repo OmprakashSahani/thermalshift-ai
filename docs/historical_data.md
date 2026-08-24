@@ -33,3 +33,8 @@ interpolation at the zero-based position `(n - 1) × q` in the sorted pooled sam
 
 Ambient observations and their modeled calibration diagnostics do not infer GPU temperature,
 server inlet temperature, cooling energy, PUE, water use, or electricity savings.
+
+Terminal `Failed` activities are not retried automatically. Following FortyGuard's
+recommendation to record activity IDs for failed tasks, collectors print the safe
+activity ID for diagnosis or support while suppressing credentials, raw response
+bodies, and arbitrary exception text.

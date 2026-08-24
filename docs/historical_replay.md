@@ -61,6 +61,12 @@ historical service. One failure stops all later new submissions without
 discarding earlier successes; exception details and credentials are not
 printed.
 
+When FortyGuard reports a terminal `Failed` activity, it is not retried
+automatically. Consistent with FortyGuard documentation recommending that
+activity IDs be recorded for failed tasks, the collector prints that safe ID
+for diagnosis or support while credentials, raw responses, and arbitrary
+exception details remain suppressed.
+
 The collector never starts a benchmark automatically. Original 4-by-7
 calibration collection remains the responsibility of the separate calibration
 collector; replay collection only displays its readiness. Replay windows,

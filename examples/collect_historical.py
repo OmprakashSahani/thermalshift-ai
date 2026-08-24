@@ -18,6 +18,7 @@ from thermalshift.fortyguard.cache import (
 from thermalshift.fortyguard.client import FortyGuardClient
 from thermalshift.fortyguard.historical import HistoricalTemperatureService
 from thermalshift.fortyguard.payloads import build_historical_heatmap_payload
+from thermalshift.fortyguard.poller import FortyGuardActivityFailed
 from thermalshift.thermal.calibration import (
     CalibrationError,
     calculate_calibration_diagnostics,
@@ -153,6 +154,11 @@ async def execute_collection(
             api_calls_made += 1
         try:
             observation = await service.get_historical_temperature(site, entry.requested_utc)
+        except FortyGuardActivityFailed as exc:
+            failed += 1
+            stop_new_submissions = True
+            output(f"{prefix} status=FAILED activity_id={exc.activity_id}")
+            continue
         except (RuntimeError, ValueError):
             failed += 1
             stop_new_submissions = True

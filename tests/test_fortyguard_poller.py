@@ -79,8 +79,21 @@ async def test_full_default_delay_sequence() -> None:
 
 @pytest.mark.asyncio
 async def test_failed_status_raises() -> None:
-    with pytest.raises(FortyGuardActivityFailed):
+    secret = "api-secret-must-not-appear"
+    with pytest.raises(FortyGuardActivityFailed) as caught:
         await wait_for_completion(FakeStatusClient([status("FAILED")]), "activity-123")
+
+    assert caught.value.activity_id == "activity-123"
+    assert str(caught.value) == "FortyGuard activity activity-123 failed"
+    assert secret not in str(caught.value)
+
+
+@pytest.mark.asyncio
+async def test_blank_activity_id_is_rejected_before_status_request() -> None:
+    client = FakeStatusClient([])
+    with pytest.raises(ValueError, match="must not be blank"):
+        await wait_for_completion(client, " ")
+    assert client.activity_ids == []
 
 
 @pytest.mark.asyncio

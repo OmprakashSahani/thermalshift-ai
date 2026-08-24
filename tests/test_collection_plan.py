@@ -20,6 +20,7 @@ from thermalshift.domain.sites import get_default_sites
 from thermalshift.fortyguard.cache import HeatmapResultCache
 from thermalshift.fortyguard.models import HeatmapResult
 from thermalshift.fortyguard.payloads import build_historical_heatmap_payload
+from thermalshift.fortyguard.poller import FortyGuardActivityFailed
 
 
 def sample_result() -> HeatmapResult:
@@ -35,10 +36,12 @@ class CachingFakeService:
         *,
         fail_on_new_call: int | None = None,
         failure_message: str = "fake failure",
+        failed_activity_id: str | None = None,
     ) -> None:
         self.cache = cache
         self.fail_on_new_call = fail_on_new_call
         self.failure_message = failure_message
+        self.failed_activity_id = failed_activity_id
         self.new_submission_site_ids: list[str] = []
 
     async def get_historical_temperature(
@@ -49,6 +52,8 @@ class CachingFakeService:
         if result is None:
             self.new_submission_site_ids.append(site.site_id)
             if len(self.new_submission_site_ids) == self.fail_on_new_call:
+                if self.failed_activity_id is not None:
+                    raise FortyGuardActivityFailed(self.failed_activity_id)
                 raise RuntimeError(self.failure_message)
             result = sample_result()
             self.cache.put(payload, result)
@@ -187,6 +192,30 @@ async def test_failure_stops_additional_new_submissions_and_hides_secret(tmp_pat
     assert summary.skipped == 26
     assert summary.remaining_uncached == 27
     assert secret not in "\n".join(output)
+
+
+@pytest.mark.asyncio
+async def test_failed_activity_prints_only_safe_structured_id(tmp_path: Path) -> None:
+    activity_id = "activity-safe-123"
+    cache = HeatmapResultCache(tmp_path)
+    service = CachingFakeService(
+        cache,
+        fail_on_new_call=2,
+        failure_message="api-secret-must-not-appear",
+        failed_activity_id=activity_id,
+    )
+    output: list[str] = []
+
+    summary = await execute_collection(
+        service, cache, max_api_calls=4, output=output.append
+    )
+
+    rendered = "\n".join(output)
+    assert summary.failed == 1
+    assert summary.collected_successfully == 1
+    assert summary.api_calls_made == 2
+    assert f"status=FAILED activity_id={activity_id}" in rendered
+    assert "api-secret-must-not-appear" not in rendered
 
 
 @pytest.mark.asyncio

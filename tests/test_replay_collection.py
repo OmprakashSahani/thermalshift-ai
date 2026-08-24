@@ -17,6 +17,7 @@ from thermalshift.domain.sites import get_default_sites
 from thermalshift.fortyguard.cache import HeatmapResultCache
 from thermalshift.fortyguard.models import HeatmapResult
 from thermalshift.fortyguard.payloads import build_historical_heatmap_payload
+from thermalshift.fortyguard.poller import FortyGuardActivityFailed
 from thermalshift.replay.adapter import load_calibration_status
 from thermalshift.replay.collection import execute_replay_collection
 from thermalshift.replay.plan import (
@@ -49,10 +50,12 @@ class CachingFakeService:
         *,
         fail_on_call: int | None = None,
         failure_message: str = "fake failure",
+        failed_activity_id: str | None = None,
     ) -> None:
         self.cache = cache
         self.fail_on_call = fail_on_call
         self.failure_message = failure_message
+        self.failed_activity_id = failed_activity_id
         self.new_calls: list[tuple[str, datetime]] = []
 
     async def get_historical_temperature(
@@ -63,6 +66,8 @@ class CachingFakeService:
         if cached is None:
             self.new_calls.append((site.site_id, timestamp))
             if len(self.new_calls) == self.fail_on_call:
+                if self.failed_activity_id is not None:
+                    raise FortyGuardActivityFailed(self.failed_activity_id)
                 raise RuntimeError(self.failure_message)
             cached = sample_result()
             self.cache.put(payload, cached)
@@ -288,8 +293,38 @@ async def test_failure_stops_new_calls_preserves_success_and_hides_secret(
     assert summary.remaining_uncached == 23
     assert cache.contains(first_payload)
     assert not cache.contains(failed_payload)
-    assert secret not in "\n".join(output)
-    assert "new submissions stopped after failure" in "\n".join(output)
+    rendered = "\n".join(output)
+    assert secret not in rendered
+    assert "status=FAILED" in rendered
+    assert "activity_id=" not in rendered
+    assert "new submissions stopped after failure" in rendered
+
+
+@pytest.mark.asyncio
+async def test_failed_activity_exposes_safe_id_and_stops_later_new_calls(
+    tmp_path: Path,
+) -> None:
+    activity_id = "activity-safe-456"
+    cache = HeatmapResultCache(tmp_path)
+    service = CachingFakeService(
+        cache,
+        fail_on_call=2,
+        failure_message="api-secret-must-not-appear",
+        failed_activity_id=activity_id,
+    )
+    output: list[str] = []
+    summary = await execute_replay_collection(
+        SUMMER_WINDOW, service, cache, max_api_calls=4, output=output.append
+    )
+
+    rendered = "\n".join(output)
+    assert summary.failed == 1
+    assert summary.collected_successfully == 1
+    assert summary.api_calls_made == 2
+    assert len(service.new_calls) == 2
+    assert f"status=FAILED activity_id={activity_id}" in rendered
+    assert "api-secret-must-not-appear" not in rendered
+    assert "new submissions stopped after failure" in rendered
 
 
 @pytest.mark.asyncio

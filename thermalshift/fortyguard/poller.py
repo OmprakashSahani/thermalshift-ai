@@ -22,6 +22,12 @@ class FortyGuardPollingError(RuntimeError):
 class FortyGuardActivityFailed(FortyGuardPollingError):
     """Raised when FortyGuard reports a failed activity."""
 
+    def __init__(self, activity_id: str) -> None:
+        if not activity_id.strip():
+            raise ValueError("activity_id must not be blank")
+        self.activity_id = activity_id
+        super().__init__(f"FortyGuard activity {activity_id} failed")
+
 
 class FortyGuardPollingTimeout(FortyGuardPollingError):
     """Raised when an activity remains processing after all polling delays."""
@@ -35,25 +41,27 @@ async def wait_for_completion(
     sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
 ) -> ActivityStatus:
     """Poll an activity to completion using a finite sequence of delays."""
+    if not activity_id.strip():
+        raise ValueError("activity_id must not be blank")
     polling_delays = tuple(delays)
     if any(delay < 0 for delay in polling_delays):
         raise ValueError("Polling delays must not be negative")
 
     status = await client.get_status(activity_id)
     for delay in polling_delays:
-        result = _evaluate(status)
+        result = _evaluate(status, activity_id)
         if result is not None:
             return result
         await sleep(delay)
         status = await client.get_status(activity_id)
 
-    result = _evaluate(status)
+    result = _evaluate(status, activity_id)
     if result is not None:
         return result
     raise FortyGuardPollingTimeout("FortyGuard activity did not complete before polling ended")
 
 
-def _evaluate(status: ActivityStatus) -> ActivityStatus | None:
+def _evaluate(status: ActivityStatus, activity_id: str) -> ActivityStatus | None:
     state = status.status.casefold()
     if state == "processing":
         return None
@@ -62,5 +70,5 @@ def _evaluate(status: ActivityStatus) -> ActivityStatus | None:
             raise FortyGuardPollingError("Completed FortyGuard activity is missing its result")
         return status
     if state == "failed":
-        raise FortyGuardActivityFailed("FortyGuard activity failed")
+        raise FortyGuardActivityFailed(activity_id)
     raise FortyGuardPollingError(f"Unknown FortyGuard activity status: {status.status!r}")
