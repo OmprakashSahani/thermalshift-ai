@@ -35,9 +35,8 @@ factual sentence.
 The included `offline-synthetic-v1` scenario is deterministic algorithm
 demonstration data. Its values are synthetic thermal stress scores in `[0, 1]`,
 not measured temperatures, and its percentages are not FortyGuard benchmark
-evidence. This benchmark layer does not implement real historical replay or
-collect FortyGuard data. Real benchmark percentages must come only from a later
-reproducible FortyGuard-backed replay.
+evidence. Historical replay is implemented separately as a cache-only path and
+is complete for both predeclared windows.
 
 Ambient-derived modeled thermal stress cannot establish GPU temperature,
 server inlet temperature, PUE, cooling energy, water consumption, electricity
@@ -80,3 +79,25 @@ data. FortyGuard confirmed on 2026-08-25 that Heatmap `date_time.start_time` is
 AOI-local and that timezone and daylight-saving offset are inferred from polygon
 coordinates; the ThermalShift adapter converts each orchestration UTC instant
 accordingly.
+
+## Completed historical evidence
+
+Committed evidence lives under `evidence/`. Each `benchmark.json` is the exact,
+machine-readable record; each `report.md` is its concise judge-facing rendering.
+
+- `summer-midday-v1` is the primary historical comparison. All schedulers place
+  the same 10 workloads with 100% deadline satisfaction. Total modeled exposure is
+  16.592 stress-hours for First Available, 16.253 for Capacity Only, and 13.262 for
+  ThermalShift. The fairness-valid reductions are 20.1% and 18.4%, respectively.
+- `winter-overnight-v1` is robustness evidence near the lower model floor. The
+  corresponding totals are 0.152, 0.168, and 0.000 stress-hours. ThermalShift's raw
+  100% relative modeled reductions arise because its placements reach the 0.000
+  floor against small positive baselines; they are not 100% cooling, energy,
+  electricity, water, or facility savings.
+
+Direct links:
+
+- [Summer report](../evidence/summer-midday-v1/report.md) and
+  [summer JSON](../evidence/summer-midday-v1/benchmark.json)
+- [Winter report](../evidence/winter-overnight-v1/report.md) and
+  [winter JSON](../evidence/winter-overnight-v1/benchmark.json)

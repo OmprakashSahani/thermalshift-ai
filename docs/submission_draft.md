@@ -1,8 +1,7 @@
 # ThermalShift AI — Submission Draft
 
-> Draft status: historical replay evidence is not finalized. FortyGuard Heatmap
-> `start_time` timezone semantics are confirmed; selected replay collection remains
-> incomplete.
+> Near-final draft based on two complete, predeclared FortyGuard-backed
+> historical replays. Demo and video URLs remain to be finalized.
 
 ## One-line pitch
 
@@ -12,39 +11,45 @@ Hyperlocal thermal-aware workload orchestration for distributed AI infrastructur
 
 Distributed AI operators can often choose where a flexible batch, training, or
 evaluation workload runs and when it starts within a release-to-deadline window.
-Traditional placement policies focus on capacity and feasibility while ignoring
-that eligible locations may experience different ambient thermal conditions.
+Conventional placement focuses on capacity and feasibility even when eligible
+locations experience different ambient thermal conditions.
 
-ThermalShift adds FortyGuard hyperlocal ambient-temperature data as an operational
-scheduling signal. It converts historical observations into a normalized modeled
-thermal-stress score, builds a site-by-time thermal grid, and evaluates three
-schedulers against identical workloads and modeled capacities. First Available
-chooses the earliest feasible placement. Capacity Only balances residual GPU
-capacity without optimizing thermal stress. ThermalShift uses OR-Tools CP-SAT with
-a lexicographic objective: first maximize completed workloads, then minimize total
-modeled ambient thermal exposure, then apply deterministic tie-breaking. Eligible
-sites, GPU capacity, release time, duration, deadline, and thermal-grid availability
-remain hard constraints.
+ThermalShift makes FortyGuard hyperlocal ambient-temperature observations an
+operational scheduling input. It transforms historical AOI mean temperatures into
+a normalized modeled thermal-stress score, builds a site-by-time thermal grid, and
+evaluates three schedulers with identical inputs. First Available chooses the
+earliest feasible placement; Capacity Only uses residual GPU capacity without
+thermal optimization; and ThermalShift uses OR-Tools CP-SAT. Its lexicographic
+objective first maximizes completed workloads, then minimizes total modeled ambient
+thermal exposure, then applies deterministic tie-breaking. Eligible sites, modeled
+GPU capacity, release time, duration, deadline, and thermal-grid availability remain
+hard constraints.
 
-The benchmark reports thermal exposure in thermal stress-hours and permits direct
-percentage comparisons only when candidate and baseline schedule the same workload
-set. In the **synthetic demonstration—not FortyGuard historical evidence**,
-ThermalShift schedules 8/8 workloads, preserves 100% deadline satisfaction, and
-records 2.560 thermal stress-hours: 75.1% below First Available and 72.2% below
-Capacity Only. These results demonstrate optimizer behavior on synthetic thermal
-scores; they do not establish electricity, cooling, water, PUE, or monetary savings.
+Direct percentage comparisons are published only when candidate and baseline
+schedule the same workload-ID set and preserve completion and deadline satisfaction.
+On the predeclared summer replay using FortyGuard historical ambient temperatures,
+ThermalShift scheduled the same 10/10 modeled workloads as both baselines with 100%
+deadline satisfaction, while reducing modeled ambient thermal exposure by 20.1%
+versus First Available and 18.4% versus Capacity Only. The corresponding totals were
+16.592, 16.253, and 13.262 thermal stress-hours.
 
-The historical replay path uses cached FortyGuard ambient temperatures, a frozen
-pooled P10/P90 calibration, four modeled U.S. sites, ten modeled workloads, modeled
-64-GPU capacities, and predeclared replay windows. It runs all schedulers under the
-same constraints and refuses to benchmark incomplete data—there is no synthetic
-fallback or interpolation. Historical replay evidence remains pending while the
-selected replay data is completed.
+The contrasting predeclared winter replay provides robustness evidence near the
+model floor: ThermalShift reached 0.000 stress-hours against small positive baseline
+exposures of approximately 0.152 and 0.168. The raw relative reduction is 100%,
+because the candidate reaches the modeled floor—not because real cooling, energy,
+electricity, water, or facility savings are 100%.
 
-ThermalShift is relevant to distributed AI infrastructure operators, batch and
-training platform teams, and infrastructure researchers exploring how external
-environmental intelligence can augment workload placement without displacing
-operational constraints or overstating facility outcomes.
+Both historical replays use real FortyGuard ambient temperatures with four modeled
+U.S. sites, modeled 64-GPU capacities, and ten modeled workloads. The pooled P10/P90
+calibration and both replay windows were frozen before full hourly outcomes were
+viewed. Missing inputs are never interpolated or replaced with synthetic data.
+Thermal stress-hours are a modeled scheduling metric, not an energy unit, and do not
+establish GPU temperature, server inlet temperature, PUE, cooling energy,
+electricity consumption or savings, or water consumption or savings.
+
+ThermalShift gives distributed AI infrastructure and platform teams an auditable
+example of incorporating environmental intelligence into constraint-aware workload
+placement without dropping work or overstating facility outcomes.
 
 ## Track alignment
 
@@ -54,7 +59,7 @@ Primary alignment proposed by the project team:
   infrastructure decision—placing flexible AI workloads across constrained sites
   and time windows.
 - **Track 05 — Model Designing:** ThermalShift implements and evaluates an
-  interpretable thermal-stress model and a completion-first CP-SAT scheduling model.
+  interpretable thermal-stress model and completion-first CP-SAT scheduler.
 
 ## What is real vs modeled
 
@@ -72,35 +77,31 @@ Primary alignment proposed by the project team:
 
 ### Calibration
 
-- Complete frozen calibration set: **28/28 observations**
+- Complete frozen set: **28/28 observations**
 - Frozen rule: **pooled P10/P90**
 - Lower reference: **4.567570294117648 °C**
 - Upper reference: **37.01878625 °C**
 
-These are shared model calibration references, not universal physical safety
-thresholds.
+These are shared model calibration references, not universal physical thresholds.
 
 ### Synthetic benchmark
 
-- Complete and publishable as a **synthetic demonstration**
-- ThermalShift schedules **8/8** workloads
-- Deadline satisfaction: **100%**
-- Total modeled thermal exposure: **2.560 thermal stress-hours**
-- Reduction versus First Available: **75.1%**
-- Reduction versus Capacity Only: **72.2%**
+- Complete and publishable as a synthetic optimizer demonstration
+- 8/8 workloads and 100% deadline satisfaction across all schedulers
+- ThermalShift: 2.560 stress-hours; 75.1% below First Available and 72.2% below
+  Capacity Only
 
 ### Historical replay
 
-- Framework: complete
-- Evidence: not finalized
-- Selected replay data collection: incomplete
-- Historical reduction percentages: **do not insert yet**
+- Summer replay: **complete and reviewed**
+- Winter replay: **complete and reviewed**
+- Evidence artifacts: **committed** under `evidence/`
+- Same-workload fairness gate: valid for both baseline comparisons in both windows
 
 FortyGuard confirmed that Heatmap `date_time.start_time` is AOI-local and that
 timezone and daylight-saving offset are inferred from the AOI polygon. ThermalShift
-therefore converts each requested orchestration UTC instant into each modeled
-site's local time before serialization. Confirmed by the FortyGuard Hackathon Team
-on 2026-08-25.
+converts each orchestration UTC instant into each modeled site's local time before
+serialization. Confirmed by the FortyGuard Hackathon Team on 2026-08-25.
 
 ## Submission fields
 
@@ -120,22 +121,26 @@ on 2026-08-25.
 ThermalShift models ambient thermal stress and thermal stress-hours for scheduling.
 It does not establish GPU temperature, server inlet temperature, PUE, cooling
 energy, electricity consumption or savings, water consumption or savings, or
-monetary savings. Those outcomes require facility telemetry and separate validated
+facility savings. Those outcomes require facility telemetry and separate validated
 models.
 
 ## Submission finalization checklist
 
 - [x] FortyGuard timezone response received
 - [x] Adapter semantics confirmed
-- [ ] Summer replay complete
-- [ ] Historical artifact generated
-- [ ] Historical comparison reviewed
-- [ ] README historical evidence updated
-- [ ] Submission summary updated with historical result only if valid
-- [ ] Demo script updated
+- [x] Summer replay complete
+- [x] Summer historical artifact generated
+- [x] Summer historical comparison reviewed
+- [x] Winter replay complete
+- [x] Winter historical artifact generated
+- [x] Winter historical comparison reviewed
+- [x] README historical evidence updated
+- [x] Submission summary updated with validated historical result
+- [x] Demo script updated
 - [ ] Demo video recorded
 - [ ] Public repository checked
 - [ ] FortyGuard collaborator requirement checked
 - [ ] Live-demo URL added if applicable
 - [ ] Video URL added
-- [ ] Final summary <= 500 words
+- [ ] Final form submitted
+- [x] Final summary <= 500 words

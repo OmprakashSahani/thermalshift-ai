@@ -137,7 +137,37 @@ The separate cache-only replay path uses FortyGuard historical ambient temperatu
 - `summer-midday-v1`: 2024-07-15 18:00Z through 23:00Z
 - `winter-overnight-v1`: 2024-01-15 06:00Z through 11:00Z
 
-Predeclaring the windows and workloads reduces cherry-picking risk. The current summer replay cache is incomplete, so no historical ThermalShift reduction is reported here. The framework refuses to run the official replay until both the frozen calibration set and selected replay window are complete.
+Predeclaring the windows and workloads reduces cherry-picking risk. The replay
+runner still refuses to benchmark any window whose frozen calibration or replay
+inputs are incomplete.
+
+Both predeclared replay windows are now complete. Each scheduler received the
+same four modeled sites, modeled 64-GPU capacities, ten modeled workloads, and
+temperature-derived grid. All three schedulers placed the identical `w01`–`w10`
+workload set with 100% deadline satisfaction.
+
+| Window | First Available | Capacity Only | ThermalShift | Result |
+|---|---:|---:|---:|---|
+| `summer-midday-v1` | 16.592 stress-hours | 16.253 stress-hours | 13.262 stress-hours | 20.1% lower vs First Available; 18.4% lower vs Capacity Only |
+| `winter-overnight-v1` | 0.152 stress-hours | 0.168 stress-hours | 0.000 stress-hours | ThermalShift reached the modeled thermal-stress floor |
+
+**Primary historical result:** On the predeclared summer historical replay,
+ThermalShift reduced modeled ambient thermal exposure by **20.1% versus First
+Available** and **18.4% versus Capacity Only** while scheduling all 10 workloads
+and preserving 100% deadline satisfaction.
+
+**Winter interpretation:** ThermalShift reached the modeled thermal-stress floor
+at 0.000 stress-hours against small positive baseline exposures of approximately
+0.152 and 0.168 stress-hours. The raw 100% relative modeled reduction reflects
+that floor; it does not mean 100% cooling, energy, electricity, water, or facility
+savings.
+
+Committed evidence:
+
+- Summer: [judge-facing report](evidence/summer-midday-v1/report.md) and
+  [machine-readable JSON](evidence/summer-midday-v1/benchmark.json)
+- Winter: [judge-facing report](evidence/winter-overnight-v1/report.md) and
+  [machine-readable JSON](evidence/winter-overnight-v1/benchmark.json)
 
 ## Calibration and thermal model
 
@@ -152,6 +182,9 @@ stress = clamp(raw stress, 0, 1)
 ```
 
 P10 and P90 are model calibration references, not universal physical safety thresholds. Shared references make site and scheduler comparisons use the same interpretation of ambient thermal stress.
+
+The frozen set is complete at **28/28 observations**. Its pooled references are
+**4.567570294117648 °C (P10)** and **37.01878625 °C (P90)**.
 
 ## Evidence classification
 
@@ -238,6 +271,7 @@ thermalshift/thermal/     Calibration diagnostics and thermal stress model
 thermalshift/scheduler/   Baselines, shared constraints, and CP-SAT optimizer
 thermalshift/benchmark/   Metrics, comparisons, runner, and evidence artifacts
 thermalshift/replay/      Fixed windows, modeled workloads, and cache-only adapters
+evidence/                 Committed, judge-readable benchmark evidence
 examples/                 Offline runners and guarded collection/diagnostic tools
 tests/                    Offline unit and integration-style tests
 docs/                     Methodology and integration documentation

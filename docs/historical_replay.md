@@ -16,6 +16,9 @@ It is a modeling calibration rule, not a universal physical threshold and is
 not claimed to be optimal. Official replay requires all 28 observations;
 partial diagnostics are explicitly provisional.
 
+The complete frozen 28/28 set produces a lower reference of
+4.567570294117648 °C and an upper reference of 37.01878625 °C.
+
 ## Predeclared windows
 
 - `summer-midday-v1`: 2024-07-15 18:00Z through 23:00Z.
@@ -26,7 +29,36 @@ instant already present in the calibration plan. Both definitions and the ten
 modeled workloads are fixed before newly collected hourly outcomes are viewed.
 Summer results must not influence workload definitions. The winter window was
 predeclared as a contrasting validation window before summer replay results.
-No temperature outcome is presumed for either window.
+No temperature outcome was presumed for either window when it was selected.
+
+## Completed replay evidence
+
+Both predeclared windows are now complete. This completion does not change their
+predeclaration history: the window definitions and modeled workloads were fixed
+before their full hourly outcomes were viewed.
+
+| Window | First Available | Capacity Only | ThermalShift | Fairness-valid result |
+|---|---:|---:|---:|---|
+| `summer-midday-v1` | 16.592 stress-hours | 16.253 stress-hours | 13.262 stress-hours | 20.1% lower vs First Available; 18.4% lower vs Capacity Only |
+| `winter-overnight-v1` | 0.152 stress-hours | 0.168 stress-hours | 0.000 stress-hours | Candidate reaches the modeled thermal-stress floor |
+
+All three schedulers place 10/10 workloads and preserve 100% deadline satisfaction
+in both windows. They schedule the same workload-ID set, so the direct-comparison
+fairness gate is valid.
+
+The summer replay is the primary historical result: ThermalShift reduces modeled
+ambient thermal exposure by 20.1% versus First Available and 18.4% versus Capacity
+Only. Winter is contrasting robustness evidence near the lower model floor. Its raw
+100% relative reductions mean ThermalShift reaches 0.000 modeled stress-hours
+against small positive baseline values; they do not mean 100% cooling, energy,
+electricity, water, or facility savings.
+
+Committed artifacts:
+
+- [Summer judge-facing report](../evidence/summer-midday-v1/report.md) and
+  [machine-readable JSON](../evidence/summer-midday-v1/benchmark.json)
+- [Winter judge-facing report](../evidence/winter-overnight-v1/report.md) and
+  [machine-readable JSON](../evidence/winter-overnight-v1/benchmark.json)
 
 FortyGuard supplies real historical ambient temperatures. The ten workloads
 and each modeled site's 64-GPU capacity are benchmark parameters, not customer
