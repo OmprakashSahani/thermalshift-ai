@@ -186,6 +186,9 @@ def render_benchmark_markdown(artifact: BenchmarkArtifact) -> str:
     for comparison in artifact.comparisons:
         baseline_name = str(comparison["baseline_scheduler"]).replace("_", " ").title()
         lines.append(f"- **ThermalShift vs {baseline_name}:** {comparison['headline']}")
+    zero_floor_note = _historical_zero_floor_note(artifact)
+    if zero_floor_note is not None:
+        lines.extend(("", zero_floor_note))
     lines.extend(("", "## Scheduling decisions", ""))
     for run in artifact.scheduler_runs:
         lines.extend((f"### {run['scheduler_name']}", ""))
@@ -350,6 +353,43 @@ def _scheduler_table(artifact: BenchmarkArtifact) -> str:
             f"{float(run['peak_occupied_thermal_stress']):.3f} | {float(run['runtime_ms']):.3f} |"
         )
     return "\n".join(lines)
+
+
+def _historical_zero_floor_note(artifact: BenchmarkArtifact) -> str | None:
+    if artifact.evidence_type != "fortyguard_historical_replay":
+        return None
+
+    runs = {str(run["scheduler_name"]): run for run in artifact.scheduler_runs}
+    candidate = runs.get("thermalshift")
+    if candidate is None or float(candidate["total_thermal_exposure_stress_hours"]) != 0.0:
+        return None
+
+    qualifying_baselines = []
+    for comparison in artifact.comparisons:
+        baseline_name = str(comparison["baseline_scheduler"])
+        baseline = runs.get(baseline_name)
+        reduction = comparison["thermal_exposure_reduction_pct"]
+        if (
+            comparison["direct_thermal_comparison_valid"] is True
+            and baseline is not None
+            and float(baseline["total_thermal_exposure_stress_hours"]) > 0.0
+            and reduction is not None
+            and round(float(reduction), 1) == 100.0
+        ):
+            display_name = baseline_name.replace("_", " ").title()
+            exposure = float(baseline["total_thermal_exposure_stress_hours"])
+            qualifying_baselines.append(f"{display_name}: {exposure:.3f}")
+
+    if not qualifying_baselines:
+        return None
+
+    baseline_summary = "; ".join(qualifying_baselines)
+    return (
+        "**Interpretation note:** ThermalShift reaches the modeled thermal-stress floor in "
+        "this replay. The 100% relative reduction means candidate stress-hours are 0.000 "
+        f"against positive baseline stress-hours ({baseline_summary}); it does not mean 100% "
+        "cooling, energy, electricity, water, or facility savings."
+    )
 
 
 def _json_value(value):

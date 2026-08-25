@@ -1,0 +1,689 @@
+{
+  "artifact_schema_version": "1.0",
+  "comparisons": [
+    {
+      "baseline_scheduler": "first_available",
+      "candidate_scheduler": "thermalshift",
+      "completion_preserved": true,
+      "deadline_satisfaction_preserved": true,
+      "direct_thermal_comparison_valid": true,
+      "headline": "ThermalShift reduced modeled ambient thermal exposure by 100.0% versus First Available while preserving 100.0% deadline satisfaction.",
+      "same_scheduled_workload_set": true,
+      "thermal_exposure_delta_stress_hours": -0.1515727124128858,
+      "thermal_exposure_reduction_pct": 100.0
+    },
+    {
+      "baseline_scheduler": "capacity_only",
+      "candidate_scheduler": "thermalshift",
+      "completion_preserved": true,
+      "deadline_satisfaction_preserved": true,
+      "direct_thermal_comparison_valid": true,
+      "headline": "ThermalShift reduced modeled ambient thermal exposure by 100.0% versus Capacity Only while preserving 100.0% deadline satisfaction.",
+      "same_scheduled_workload_set": true,
+      "thermal_exposure_delta_stress_hours": -0.16763230958147451,
+      "thermal_exposure_reduction_pct": 100.00000000000001
+    }
+  ],
+  "data_source_label": "FORTYGUARD_HISTORICAL_TEMPERATURES_WITH_MODELED_WORKLOADS",
+  "evidence_boundaries": {
+    "evidence_classification": "Ambient temperatures come from FortyGuard; workloads and GPU capacities are modeled benchmark parameters, not real customer workloads or facility telemetry.",
+    "not_measured_or_proven": [
+      "GPU temperature",
+      "server inlet temperature",
+      "PUE",
+      "cooling energy",
+      "electricity consumption",
+      "electricity savings",
+      "water consumption",
+      "water savings"
+    ],
+    "thermal_stress_hours": "Thermal stress-hours are a modeled scheduling metric derived from ambient-temperature inputs."
+  },
+  "evidence_type": "fortyguard_historical_replay",
+  "generated_at_utc": null,
+  "provenance": {
+    "calibration_lower_reference_c": 4.567570294117648,
+    "calibration_observation_count": 28,
+    "calibration_rule": "pooled_p10_p90",
+    "calibration_upper_reference_c": 37.01878625,
+    "replay_slot_count": 6,
+    "replay_start_utc": "2024-01-15T06:00:00Z",
+    "replay_window_id": "winter-overnight-v1",
+    "request_time_interpretation": "AOI-local start_time; FortyGuard infers timezone and DST from AOI polygon coordinates; ThermalShift converts each orchestration UTC instant to the modeled site local time before submission",
+    "site_capacity_source": "modeled",
+    "temperature_source": "fortyguard",
+    "workload_source": "modeled"
+  },
+  "scenario_description": "FortyGuard supplies real historical ambient-temperature observations; workload and 64-GPU capacity inputs are modeled benchmark parameters, not real facility telemetry.",
+  "scenario_id": "fortyguard-winter-overnight-v1",
+  "scheduler_runs": [
+    {
+      "completion_rate": 1.0,
+      "deadline_satisfaction_count": 10,
+      "deadline_satisfaction_rate": 1.0,
+      "decisions": [
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Earliest feasible placement using stable site order; temperature not used for selection.",
+          "end_time": "2024-01-15T08:00:00Z",
+          "scheduler_name": "first_available",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w01"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Earliest feasible placement using stable site order; temperature not used for selection.",
+          "end_time": "2024-01-15T08:00:00Z",
+          "scheduler_name": "first_available",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w02"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Earliest feasible placement using stable site order; temperature not used for selection.",
+          "end_time": "2024-01-15T09:00:00Z",
+          "scheduler_name": "first_available",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w03"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Earliest feasible placement using stable site order; temperature not used for selection.",
+          "end_time": "2024-01-15T08:00:00Z",
+          "scheduler_name": "first_available",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T07:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w04"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Earliest feasible placement using stable site order; temperature not used for selection.",
+          "end_time": "2024-01-15T09:00:00Z",
+          "scheduler_name": "first_available",
+          "site_id": "phoenix-az",
+          "start_time": "2024-01-15T07:00:00Z",
+          "thermal_exposure": 0.04839890017988691,
+          "thermal_stress_avg": 0.024199450089943456,
+          "workload_id": "w05"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Earliest feasible placement using stable site order; temperature not used for selection.",
+          "end_time": "2024-01-15T09:00:00Z",
+          "scheduler_name": "first_available",
+          "site_id": "san-antonio-tx",
+          "start_time": "2024-01-15T08:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w06"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Earliest feasible placement using stable site order; temperature not used for selection.",
+          "end_time": "2024-01-15T10:00:00Z",
+          "scheduler_name": "first_available",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T08:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w07"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Earliest feasible placement using stable site order; temperature not used for selection.",
+          "end_time": "2024-01-15T07:00:00Z",
+          "scheduler_name": "first_available",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w08"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Earliest feasible placement using stable site order; temperature not used for selection.",
+          "end_time": "2024-01-15T08:00:00Z",
+          "scheduler_name": "first_available",
+          "site_id": "phoenix-az",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.1031738122329989,
+          "thermal_stress_avg": 0.05158690611649945,
+          "workload_id": "w09"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Earliest feasible placement using stable site order; temperature not used for selection.",
+          "end_time": "2024-01-15T10:00:00Z",
+          "scheduler_name": "first_available",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T09:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w10"
+        }
+      ],
+      "mean_occupied_thermal_stress": 0.008916041906640342,
+      "mean_thermal_exposure_per_scheduled_workload": 0.015157271241288581,
+      "peak_occupied_thermal_stress": 0.07040351612674203,
+      "runtime_ms": 2.636872,
+      "scheduled_count": 10,
+      "scheduled_workload_ids": [
+        "w01",
+        "w02",
+        "w03",
+        "w04",
+        "w05",
+        "w06",
+        "w07",
+        "w08",
+        "w09",
+        "w10"
+      ],
+      "scheduler_name": "first_available",
+      "total_scheduled_workload_hours": 17.0,
+      "total_thermal_exposure_stress_hours": 0.1515727124128858,
+      "total_workloads": 10,
+      "unscheduled_count": 0,
+      "unscheduled_workload_ids": []
+    },
+    {
+      "completion_rate": 1.0,
+      "deadline_satisfaction_count": 10,
+      "deadline_satisfaction_rate": 1.0,
+      "decisions": [
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Largest minimum residual GPU capacity; temperature not used for selection.",
+          "end_time": "2024-01-15T08:00:00Z",
+          "scheduler_name": "capacity_only",
+          "site_id": "phoenix-az",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.1031738122329989,
+          "thermal_stress_avg": 0.05158690611649945,
+          "workload_id": "w01"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Largest minimum residual GPU capacity; temperature not used for selection.",
+          "end_time": "2024-01-15T08:00:00Z",
+          "scheduler_name": "capacity_only",
+          "site_id": "san-antonio-tx",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w02"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Largest minimum residual GPU capacity; temperature not used for selection.",
+          "end_time": "2024-01-15T09:00:00Z",
+          "scheduler_name": "capacity_only",
+          "site_id": "atlanta-ga",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.04632657912027789,
+          "thermal_stress_avg": 0.01544219304009263,
+          "workload_id": "w03"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Largest minimum residual GPU capacity; temperature not used for selection.",
+          "end_time": "2024-01-15T08:00:00Z",
+          "scheduler_name": "capacity_only",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T07:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w04"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Largest minimum residual GPU capacity; temperature not used for selection.",
+          "end_time": "2024-01-15T10:00:00Z",
+          "scheduler_name": "capacity_only",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T08:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w05"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Largest minimum residual GPU capacity; temperature not used for selection.",
+          "end_time": "2024-01-15T09:00:00Z",
+          "scheduler_name": "capacity_only",
+          "site_id": "san-antonio-tx",
+          "start_time": "2024-01-15T08:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w06"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Largest minimum residual GPU capacity; temperature not used for selection.",
+          "end_time": "2024-01-15T11:00:00Z",
+          "scheduler_name": "capacity_only",
+          "site_id": "san-antonio-tx",
+          "start_time": "2024-01-15T09:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w07"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Largest minimum residual GPU capacity; temperature not used for selection.",
+          "end_time": "2024-01-15T07:00:00Z",
+          "scheduler_name": "capacity_only",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w08"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Largest minimum residual GPU capacity; temperature not used for selection.",
+          "end_time": "2024-01-15T10:00:00Z",
+          "scheduler_name": "capacity_only",
+          "site_id": "phoenix-az",
+          "start_time": "2024-01-15T08:00:00Z",
+          "thermal_exposure": 0.015628604073630044,
+          "thermal_stress_avg": 0.007814302036815022,
+          "workload_id": "w09"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Largest minimum residual GPU capacity; temperature not used for selection.",
+          "end_time": "2024-01-15T10:00:00Z",
+          "scheduler_name": "capacity_only",
+          "site_id": "atlanta-ga",
+          "start_time": "2024-01-15T09:00:00Z",
+          "thermal_exposure": 0.002503314154567681,
+          "thermal_stress_avg": 0.002503314154567681,
+          "workload_id": "w10"
+        }
+      ],
+      "mean_occupied_thermal_stress": 0.009860724093027913,
+      "mean_thermal_exposure_per_scheduled_workload": 0.01676323095814745,
+      "peak_occupied_thermal_stress": 0.07040351612674203,
+      "runtime_ms": 3.839747,
+      "scheduled_count": 10,
+      "scheduled_workload_ids": [
+        "w01",
+        "w02",
+        "w03",
+        "w04",
+        "w05",
+        "w06",
+        "w07",
+        "w08",
+        "w09",
+        "w10"
+      ],
+      "scheduler_name": "capacity_only",
+      "total_scheduled_workload_hours": 17.0,
+      "total_thermal_exposure_stress_hours": 0.16763230958147451,
+      "total_workloads": 10,
+      "unscheduled_count": 0,
+      "unscheduled_workload_ids": []
+    },
+    {
+      "completion_rate": 1.0,
+      "deadline_satisfaction_count": 10,
+      "deadline_satisfaction_rate": 1.0,
+      "decisions": [
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Constraint-aware thermal optimization after preserving maximum feasible workload completion.",
+          "end_time": "2024-01-15T08:00:00Z",
+          "scheduler_name": "thermalshift",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w01"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Constraint-aware thermal optimization after preserving maximum feasible workload completion.",
+          "end_time": "2024-01-15T08:00:00Z",
+          "scheduler_name": "thermalshift",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w02"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Constraint-aware thermal optimization after preserving maximum feasible workload completion.",
+          "end_time": "2024-01-15T09:00:00Z",
+          "scheduler_name": "thermalshift",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w03"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Constraint-aware thermal optimization after preserving maximum feasible workload completion.",
+          "end_time": "2024-01-15T08:00:00Z",
+          "scheduler_name": "thermalshift",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T07:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w04"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Constraint-aware thermal optimization after preserving maximum feasible workload completion.",
+          "end_time": "2024-01-15T10:00:00Z",
+          "scheduler_name": "thermalshift",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T08:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w05"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Constraint-aware thermal optimization after preserving maximum feasible workload completion.",
+          "end_time": "2024-01-15T09:00:00Z",
+          "scheduler_name": "thermalshift",
+          "site_id": "san-antonio-tx",
+          "start_time": "2024-01-15T08:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w06"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Constraint-aware thermal optimization after preserving maximum feasible workload completion.",
+          "end_time": "2024-01-15T10:00:00Z",
+          "scheduler_name": "thermalshift",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T08:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w07"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Constraint-aware thermal optimization after preserving maximum feasible workload completion.",
+          "end_time": "2024-01-15T07:00:00Z",
+          "scheduler_name": "thermalshift",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w08"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Constraint-aware thermal optimization after preserving maximum feasible workload completion.",
+          "end_time": "2024-01-15T08:00:00Z",
+          "scheduler_name": "thermalshift",
+          "site_id": "san-antonio-tx",
+          "start_time": "2024-01-15T06:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w09"
+        },
+        {
+          "capacity_satisfied": true,
+          "deadline_satisfied": true,
+          "decision_reason": "Constraint-aware thermal optimization after preserving maximum feasible workload completion.",
+          "end_time": "2024-01-15T10:00:00Z",
+          "scheduler_name": "thermalshift",
+          "site_id": "ashburn-va",
+          "start_time": "2024-01-15T09:00:00Z",
+          "thermal_exposure": 0.0,
+          "thermal_stress_avg": 0.0,
+          "workload_id": "w10"
+        }
+      ],
+      "mean_occupied_thermal_stress": 0.0,
+      "mean_thermal_exposure_per_scheduled_workload": 0.0,
+      "peak_occupied_thermal_stress": 0.0,
+      "runtime_ms": 20.316802,
+      "scheduled_count": 10,
+      "scheduled_workload_ids": [
+        "w01",
+        "w02",
+        "w03",
+        "w04",
+        "w05",
+        "w06",
+        "w07",
+        "w08",
+        "w09",
+        "w10"
+      ],
+      "scheduler_name": "thermalshift",
+      "total_scheduled_workload_hours": 17.0,
+      "total_thermal_exposure_stress_hours": 0.0,
+      "total_workloads": 10,
+      "unscheduled_count": 0,
+      "unscheduled_workload_ids": []
+    }
+  ],
+  "sites": [
+    {
+      "latitude": 39.0437,
+      "longitude": -77.4875,
+      "modeled_gpu_capacity": 64,
+      "name": "Modeled Ashburn Compute Site",
+      "site_id": "ashburn-va",
+      "timezone": "America/New_York"
+    },
+    {
+      "latitude": 33.749,
+      "longitude": -84.388,
+      "modeled_gpu_capacity": 64,
+      "name": "Modeled Atlanta Compute Site",
+      "site_id": "atlanta-ga",
+      "timezone": "America/New_York"
+    },
+    {
+      "latitude": 33.4484,
+      "longitude": -112.074,
+      "modeled_gpu_capacity": 64,
+      "name": "Modeled Phoenix Compute Site",
+      "site_id": "phoenix-az",
+      "timezone": "America/Phoenix"
+    },
+    {
+      "latitude": 29.4241,
+      "longitude": -98.4936,
+      "modeled_gpu_capacity": 64,
+      "name": "Modeled San Antonio Compute Site",
+      "site_id": "san-antonio-tx",
+      "timezone": "America/Chicago"
+    }
+  ],
+  "workloads": [
+    {
+      "deadline": "2024-01-15T10:00:00Z",
+      "duration_hours": 2,
+      "eligible_site_ids": [
+        "ashburn-va",
+        "atlanta-ga",
+        "phoenix-az",
+        "san-antonio-tx"
+      ],
+      "gpu_demand": 16,
+      "name": "Distributed training warmup",
+      "priority": "medium",
+      "release_time": "2024-01-15T06:00:00Z",
+      "workload_id": "w01"
+    },
+    {
+      "deadline": "2024-01-15T10:00:00Z",
+      "duration_hours": 2,
+      "eligible_site_ids": [
+        "ashburn-va",
+        "atlanta-ga",
+        "phoenix-az",
+        "san-antonio-tx"
+      ],
+      "gpu_demand": 24,
+      "name": "Batch inference refresh",
+      "priority": "medium",
+      "release_time": "2024-01-15T06:00:00Z",
+      "workload_id": "w02"
+    },
+    {
+      "deadline": "2024-01-15T12:00:00Z",
+      "duration_hours": 3,
+      "eligible_site_ids": [
+        "ashburn-va",
+        "atlanta-ga",
+        "phoenix-az",
+        "san-antonio-tx"
+      ],
+      "gpu_demand": 16,
+      "name": "Model evaluation suite",
+      "priority": "medium",
+      "release_time": "2024-01-15T06:00:00Z",
+      "workload_id": "w03"
+    },
+    {
+      "deadline": "2024-01-15T10:00:00Z",
+      "duration_hours": 1,
+      "eligible_site_ids": [
+        "ashburn-va",
+        "atlanta-ga",
+        "phoenix-az",
+        "san-antonio-tx"
+      ],
+      "gpu_demand": 8,
+      "name": "Embedding index update",
+      "priority": "medium",
+      "release_time": "2024-01-15T07:00:00Z",
+      "workload_id": "w04"
+    },
+    {
+      "deadline": "2024-01-15T11:00:00Z",
+      "duration_hours": 2,
+      "eligible_site_ids": [
+        "ashburn-va",
+        "phoenix-az"
+      ],
+      "gpu_demand": 32,
+      "name": "Regional fine-tuning run",
+      "priority": "medium",
+      "release_time": "2024-01-15T07:00:00Z",
+      "workload_id": "w05"
+    },
+    {
+      "deadline": "2024-01-15T11:00:00Z",
+      "duration_hours": 1,
+      "eligible_site_ids": [
+        "atlanta-ga",
+        "san-antonio-tx"
+      ],
+      "gpu_demand": 24,
+      "name": "Regional inference batch",
+      "priority": "medium",
+      "release_time": "2024-01-15T08:00:00Z",
+      "workload_id": "w06"
+    },
+    {
+      "deadline": "2024-01-15T12:00:00Z",
+      "duration_hours": 2,
+      "eligible_site_ids": [
+        "ashburn-va",
+        "atlanta-ga",
+        "phoenix-az",
+        "san-antonio-tx"
+      ],
+      "gpu_demand": 16,
+      "name": "Checkpoint validation",
+      "priority": "medium",
+      "release_time": "2024-01-15T08:00:00Z",
+      "workload_id": "w07"
+    },
+    {
+      "deadline": "2024-01-15T08:00:00Z",
+      "duration_hours": 1,
+      "eligible_site_ids": [
+        "ashburn-va",
+        "atlanta-ga"
+      ],
+      "gpu_demand": 8,
+      "name": "Urgent quality check",
+      "priority": "medium",
+      "release_time": "2024-01-15T06:00:00Z",
+      "workload_id": "w08"
+    },
+    {
+      "deadline": "2024-01-15T11:00:00Z",
+      "duration_hours": 2,
+      "eligible_site_ids": [
+        "phoenix-az",
+        "san-antonio-tx"
+      ],
+      "gpu_demand": 24,
+      "name": "Dataset feature extraction",
+      "priority": "medium",
+      "release_time": "2024-01-15T06:00:00Z",
+      "workload_id": "w09"
+    },
+    {
+      "deadline": "2024-01-15T12:00:00Z",
+      "duration_hours": 1,
+      "eligible_site_ids": [
+        "ashburn-va",
+        "atlanta-ga",
+        "phoenix-az",
+        "san-antonio-tx"
+      ],
+      "gpu_demand": 16,
+      "name": "Late-window inference run",
+      "priority": "medium",
+      "release_time": "2024-01-15T09:00:00Z",
+      "workload_id": "w10"
+    }
+  ]
+}

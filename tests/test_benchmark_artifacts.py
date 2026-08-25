@@ -82,6 +82,27 @@ def historical_artifact(tmp_path: Path):
     )
 
 
+def artifact_with_zero_candidate(artifact):
+    runs = tuple(
+        {
+            **run,
+            "total_thermal_exposure_stress_hours": 0.0,
+        }
+        if run["scheduler_name"] == "thermalshift"
+        else run
+        for run in artifact.scheduler_runs
+    )
+    comparisons = tuple(
+        {
+            **comparison,
+            "direct_thermal_comparison_valid": True,
+            "thermal_exposure_reduction_pct": 100.0,
+        }
+        for comparison in artifact.comparisons
+    )
+    return replace(artifact, scheduler_runs=runs, comparisons=comparisons)
+
+
 def test_synthetic_artifact_has_complete_safe_inputs_metrics_and_decisions() -> None:
     artifact = synthetic_artifact()
     value = benchmark_artifact_dict(artifact)
@@ -222,6 +243,32 @@ def test_historical_markdown_classification(tmp_path: Path) -> None:
     assert "REAL HISTORICAL AMBIENT TEMPERATURES + MODELED WORKLOADS" in rendered
     assert REQUEST_TIME_INTERPRETATION in rendered
     assert "awaiting " + "confirmation" not in rendered
+
+
+def test_historical_zero_floor_markdown_adds_interpretation_note(tmp_path: Path) -> None:
+    artifact = artifact_with_zero_candidate(historical_artifact(tmp_path))
+    expected_headline = artifact.comparisons[0]["headline"]
+
+    rendered = render_benchmark_markdown(artifact)
+
+    assert expected_headline in rendered
+    assert "ThermalShift reaches the modeled thermal-stress floor" in rendered
+    assert "candidate stress-hours are 0.000 against positive baseline stress-hours" in rendered
+    assert "does not mean 100% cooling, energy, electricity, water, or facility savings" in rendered
+
+
+def test_normal_historical_markdown_omits_zero_floor_note(tmp_path: Path) -> None:
+    rendered = render_benchmark_markdown(historical_artifact(tmp_path))
+
+    assert "modeled thermal-stress floor" not in rendered
+
+
+def test_synthetic_zero_candidate_omits_historical_zero_floor_note() -> None:
+    artifact = artifact_with_zero_candidate(synthetic_artifact())
+
+    rendered = render_benchmark_markdown(artifact)
+
+    assert "modeled thermal-stress floor" not in rendered
 
 
 def test_writers_create_output_directory(tmp_path: Path) -> None:
