@@ -18,10 +18,10 @@ Scores from 0.00 up to 0.25 are low risk, 0.25 up to 0.50 are moderate, 0.50 up 
 ## Calibration
 
 The two references are calibration parameters, not universal outdoor-temperature thresholds for
-data centers. The planned benchmark methodology will derive common reference values from a pooled
-FortyGuard historical temperature baseline spanning all candidate sites and the evaluation period,
-using shared quantiles or reference values. No historical percentiles are assumed yet. Applying
-common references makes site and scheduler comparisons use the same scale.
+data centers. The completed benchmark uses a frozen pooled P10/P90 rule over 28 FortyGuard
+historical observations across the four modeled sites. The resulting lower reference is
+4.567570294117648 °C and the upper reference is 37.01878625 °C. Applying common references makes
+site and scheduler comparisons use the same scale.
 
 ## Thermal exposure
 

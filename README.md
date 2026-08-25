@@ -7,6 +7,24 @@ ThermalShift uses FortyGuard hyperlocal ambient-temperature data to model therma
 > **FortyGuard Hackathon’26 project.** Primary alignment: **Track 03 — Industrial &
 > Enterprise** and **Track 05 — Model Designing**.
 
+## Live judge demo
+
+**https://thermalshift-ai.onrender.com/**
+
+The hosted product presents read-only official evidence plus an interactive
+Scenario Lab that performs live scheduler recomputation against committed
+FortyGuard historical conditions.
+
+### Try it
+
+1. Open the live demo.
+2. Review the **Summer midday** primary evidence.
+3. Open **ThermalShift Scenario Lab**.
+4. Choose GPU demand, duration, time window, and eligible modeled sites.
+5. Click **Run ThermalShift**.
+6. Compare First Available, Capacity Only, and ThermalShift.
+7. Inspect the site × time FortyGuard historical thermal landscape.
+
 ## The operational problem
 
 Distributed AI operators can often choose where a batch, training, or evaluation workload runs and when it starts inside a release-to-deadline window. At the same orchestration period, eligible locations may experience materially different ambient thermal conditions.
@@ -114,9 +132,9 @@ flowchart TD
     BENCH --> ART[Deterministic-structure JSON + Markdown artifacts]
 ```
 
-## Benchmark evidence
+## Evidence and simulation classification
 
-### **Synthetic demonstration — not FortyGuard benchmark evidence**
+### Synthetic demonstration — not FortyGuard benchmark evidence
 
 The repository includes a deterministic synthetic thermal grid for verifying scheduler behavior offline. Running `python examples/run_synthetic_benchmark.py` in this checkout produced:
 
@@ -130,7 +148,10 @@ Because all three schedulers placed the same workload-ID set and preserved deadl
 
 These percentages demonstrate optimizer behavior on synthetic thermal scores. They are not FortyGuard benchmark evidence and are not claims about electricity, cooling energy, water, PUE, or real facility savings. Runtime is recorded as observational metadata but is not presented as a competitive result.
 
-### Historical replay evidence
+### A. Official historical benchmark evidence
+
+The committed, predeclared summer and winter FortyGuard historical replays are the
+official hackathon evidence. They are separate from Scenario Lab results.
 
 The separate cache-only replay path uses FortyGuard historical ambient temperatures, the frozen pooled P10/P90 calibration rule, ten modeled workloads, modeled 64-GPU site capacities, and identical constraints across schedulers. Two six-hour, one-hour-resolution windows were fixed before viewing their full hourly outcomes:
 
@@ -169,6 +190,52 @@ Committed evidence:
 - Winter: [judge-facing report](evidence/winter-overnight-v1/report.md) and
   [machine-readable JSON](evidence/winter-overnight-v1/benchmark.json)
 
+## B. Interactive Scenario Lab — not official benchmark evidence
+
+Scenario Lab adds exactly one modeled `whatif` workload to the existing ten-workload
+replay scenario, then executes the real backend implementations of First Available,
+Capacity Only, and ThermalShift CP-SAT. It recomputes scheduler decisions and the
+existing fairness comparisons for every request; it is not a browser calculator and
+does not return precomputed benchmark placements.
+
+Interaction makes **zero FortyGuard requests**. The service loads committed,
+sanitized FortyGuard historical temperature and modeled-stress inputs. Results are
+ephemeral interactive simulations and are never written into official evidence.
+
+The bounded endpoint is:
+
+```http
+POST /api/scenario
+Content-Type: application/json
+```
+
+```json
+{
+  "window_id": "summer-midday-v1",
+  "gpu_demand": 16,
+  "duration_hours": 2,
+  "release_offset_hours": 0,
+  "deadline_offset_hours": 4,
+  "eligible_site_ids": [
+    "ashburn-va",
+    "phoenix-az",
+    "san-antonio-tx",
+    "atlanta-ga"
+  ]
+}
+```
+
+The public supporting artifacts are:
+
+- [`evidence/summer-midday-v1/thermal_grid.json`](evidence/summer-midday-v1/thermal_grid.json)
+- [`evidence/winter-overnight-v1/thermal_grid.json`](evidence/winter-overnight-v1/thermal_grid.json)
+
+They are classified as **public interactive simulation inputs**, not new benchmark
+results. Each contains four modeled sites × six UTC hours, FortyGuard historical AOI
+mean ambient temperature, the derived modeled thermal-stress score, and frozen
+calibration provenance. They contain no credentials, activity IDs, raw API payloads,
+polygons, `map_data`, or private cache metadata.
+
 ## Calibration and thermal model
 
 Calibration pools historical FortyGuard observations across all four modeled locations onto one shared scale. The frozen replay rule is:
@@ -191,7 +258,8 @@ The frozen set is complete at **28/28 observations**. Its pooled references are
 | Evidence | Temperature input | Workloads | Site capacity | Claim level |
 |---|---|---|---|---|
 | Synthetic demonstration | Synthetic thermal-stress grid | Modeled | Modeled | Optimizer behavior only; not FortyGuard evidence |
-| FortyGuard historical replay | FortyGuard historical ambient temperatures | Modeled | Modeled | Historical ambient-temperature scheduling evidence, only when cache inputs are complete |
+| FortyGuard historical replay | FortyGuard historical ambient temperatures | Modeled | Modeled | Official historical benchmark evidence, only when cache inputs are complete |
+| Scenario Lab | Committed sanitized FortyGuard historical inputs | One added modeled workload | Modeled | Interactive simulation; not official benchmark evidence |
 
 This distinction is also embedded in generated JSON and Markdown artifacts.
 
@@ -228,7 +296,7 @@ python -m ruff check .
 
 ## Live demo locally
 
-Start the judge-facing evidence dashboard from the repository root:
+Start the judge-facing application from the repository root:
 
 ```bash
 python -m uvicorn thermalshift.web.app:app \
@@ -236,16 +304,17 @@ python -m uvicorn thermalshift.web.app:app \
   --port 8000
 ```
 
-Open <http://localhost:8000>. The dashboard reads the committed summer and winter
-historical benchmark artifacts and makes no FortyGuard request.
+Open <http://localhost:8000>. The application presents committed summer and winter
+official evidence plus Scenario Lab. Interactive requests run the scheduler suite
+locally against the sanitized committed grids and make no FortyGuard request.
 
 ### Deploy on Render
 
 Render deploys the FastAPI service directly from this repository using the
 configuration in `render.yaml`. Python is pinned to 3.12 by `.python-version`, and
-Render checks service health at `/healthz`. The deployed dashboard reads only the
-committed historical evidence, so the judge demo does not need a FortyGuard
-credential.
+Render checks service health at `/healthz`. The deployed application reads committed
+official evidence and public simulation-input grids, so the judge demo does not need
+a FortyGuard credential.
 
 ## Cache-only historical replay
 
@@ -281,6 +350,7 @@ For identical inputs, scenario definitions, scheduling decisions, modeled therma
 | Thermal stress-hours for workload placement | PUE or cooling energy |
 | Relative scheduler comparisons under controlled inputs | Electricity consumption or electricity savings |
 |  | Water consumption or water savings |
+|  | Facility savings |
 
 Facility-level outcomes would require facility telemetry and a separately validated physical model.
 
@@ -292,7 +362,8 @@ thermalshift/thermal/     Calibration diagnostics and thermal stress model
 thermalshift/scheduler/   Baselines, shared constraints, and CP-SAT optimizer
 thermalshift/benchmark/   Metrics, comparisons, runner, and evidence artifacts
 thermalshift/replay/      Fixed windows, modeled workloads, and cache-only adapters
-evidence/                 Committed, judge-readable benchmark evidence
+thermalshift/web/         Judge dashboard and live bounded Scenario Lab service
+evidence/                 Official evidence plus classified public simulation inputs
 examples/                 Offline runners and guarded collection/diagnostic tools
 tests/                    Offline unit and integration-style tests
 docs/                     Methodology and integration documentation

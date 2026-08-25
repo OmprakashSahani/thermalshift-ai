@@ -1,160 +1,123 @@
-# ThermalShift AI — Demo Script Draft
+# ThermalShift AI — Three-Minute Demo Script
 
-**Target:** 2:40–2:55 spoken, reliable offline execution, no live FortyGuard
-request.
+**Primary demo:** https://thermalshift-ai.onrender.com/
 
-## 0:00–0:20 — Problem
+**Target finished-video runtime:** approximately 2:35–2:45 with normal UI interaction
+and brief pauses, leaving margin below the three-minute limit. The deployed dashboard is the primary visual;
+no live FortyGuard request is required.
 
-**On screen:** README hero and “The operational problem.”
+## 0:00–0:18 — Problem and solution
 
-**Presenter says:**
-
-“Distributed AI workloads often have flexibility in both location and start time,
-but placement typically considers capacity and deadlines without ambient thermal
-conditions. ThermalShift adds hyperlocal temperature as another decision signal
-while preserving operational feasibility. It minimizes modeled ambient thermal
-exposure—not measured cooling energy or facility efficiency.”
-
-**Do not claim:** outdoor temperature directly measures GPU temperature, facility
-efficiency, or energy use.
-
-## 0:20–0:45 — FortyGuard and thermal stress
-
-**On screen:** README “What ThermalShift does” and FortyGuard integration.
+**On screen:** Open the deployed dashboard at the official Summer midday evidence.
 
 **Presenter says:**
 
-“FortyGuard supplies the real historical ambient-temperature observations.
-ThermalShift validates and caches each Heatmap result, then applies a frozen pooled
-P10/P90 calibration to the AOI mean temperature. Exposure sums normalized modeled
-stress across occupied hours. FortyGuard confirmed start time is AOI-local, so one
-orchestration UTC instant becomes each site's local request time.”
+“Flexible AI workloads can move across locations or time, but scheduling usually
+focuses on capacity and deadlines. ThermalShift uses FortyGuard historical ambient
+temperature to choose feasible placements with lower modeled ambient thermal
+exposure.”
 
-**Do not claim:** P10/P90 are physical thresholds or stress-hours are energy units.
+## 0:18–0:50 — Official summer evidence
 
-## 0:45–1:10 — Architecture and constraints
-
-**On screen:** README Mermaid diagram and scheduler policies.
+**On screen:** Point to the hero metrics and scheduler comparison.
 
 **Presenter says:**
 
-“The thermal grid and modeled inputs meet at the scheduling layer. Placements must
-satisfy eligibility, capacity, release time, duration, deadline, and grid
-availability. We compare two baselines with ThermalShift's OR-Tools CP-SAT optimizer:
-maximize completion, minimize modeled exposure at that completion count, then
-tie-break deterministically. Direct percentages require identical workload sets.”
+“This is committed official historical benchmark evidence. In the predeclared summer
+replay, ThermalShift reduced modeled ambient thermal exposure by 20.1 percent versus
+First Available and 18.4 percent versus Capacity Only. Every scheduler placed all ten
+workloads with 100 percent deadline satisfaction. FortyGuard historical ambient
+temperature is real input. The sites, 64-GPU capacities, workloads, and stress metric
+are modeled—not facility telemetry.”
 
-**Do not claim:** priority, carbon, pricing, or facility energy is optimized.
+## 0:50–1:10 — Completion-first scheduling
 
-## 1:10–1:30 — Synthetic sanity check
-
-**On screen:** Run:
-
-```bash
-python examples/run_synthetic_benchmark.py
-```
+**On screen:** Compare the three official scheduler rows.
 
 **Presenter says:**
 
-“The synthetic scenario is a quick offline sanity check. All schedulers place eight
-workloads and meet every deadline; ThermalShift lowers the synthetic modeled score.
-This demonstrates optimizer behavior only. It is not FortyGuard historical evidence
-and is not the main result.”
+“The baselines select by availability or remaining capacity. ThermalShift uses
+OR-Tools CP-SAT to preserve maximum workload completion first, then minimize modeled
+thermal exposure. Modeled capacity, eligible sites, release time, runtime, and
+deadlines remain hard constraints.”
 
-**Do not claim:** synthetic percentages are historical or facility outcomes.
+## 1:10–2:05 — Run Scenario Lab
 
-## 1:30–2:25 — FortyGuard historical evidence: main demo
-
-**On screen:** Run the cache-only benchmark:
-
-```bash
-python examples/run_historical_replay.py \
-  --window summer-midday-v1
-```
-
-Then open [`evidence/summer-midday-v1/report.md`](../evidence/summer-midday-v1/report.md).
+**On screen:** Scroll to Scenario Lab. Keep the default summer settings: 16 GPUs,
+two hours, release at 18:00 UTC, deadline at 22:00 UTC, all four modeled sites.
+Click **Run ThermalShift**.
 
 **Presenter says:**
 
-“Here is the primary FortyGuard-backed result. The predeclared summer window uses
-real historical ambient temperatures across four modeled U.S. sites, with modeled
-64-GPU capacities and ten modeled workloads. Every scheduler places the same ten of
-ten workloads and preserves 100% deadline satisfaction. First Available records
-16.592 thermal stress-hours, Capacity Only 16.253, and ThermalShift 13.262. Because
-the sets match, direct comparison is valid: ThermalShift reduces modeled
-ambient thermal exposure by 20.1% versus First Available and 18.4% versus Capacity
-Only.”
+“Now I’ll add one modeled workload: 16 GPUs for two hours, available from 18:00 to
+22:00 UTC, with all four modeled sites eligible. This is an interactive simulation,
+not official benchmark evidence. Run ThermalShift calls the backend, adds this work
+to the ten-workload replay, and reruns the existing scheduler implementations against
+committed FortyGuard historical conditions.
 
-**Optional on screen:** Open
-[`evidence/winter-overnight-v1/report.md`](../evidence/winter-overnight-v1/report.md).
+First Available chooses Ashburn from 18:00 to 20:00. Capacity Only chooses Atlanta
+from 18:00 to 20:00. ThermalShift shifts the workload to Atlanta from 20:00 to 22:00.
+All three still place 11 of 11 workloads and meet every deadline.
 
-**Presenter says:**
+This site-by-time landscape shows the FortyGuard historical ambient temperature and
+modeled stress behind those different choices.”
 
-“In the predeclared winter robustness window, ThermalShift reaches the modeled
-stress floor at 0.000 stress-hours versus small positive baseline exposure. The
-report explains that the resulting 100% relative modeled reduction is not 100%
-real-world energy or cooling savings.”
+## 2:05–2:22 — Fairness rule
 
-**Do not show:** API keys, raw cache, cache keys, activity IDs, request payloads, or
-raw `map_data`.
-
-## 2:25–2:50 — Value, boundary, and close
-
-**On screen:** README “Scientific boundaries” and “Why this is useful.”
+**On screen:** Point to the Scenario Lab fairness message, without running the edge
+case.
 
 **Presenter says:**
 
-“ThermalShift incorporates hyperlocal environmental intelligence without sacrificing
-capacity or deadlines. FortyGuard data drives decisions, and committed JSON and
-Markdown make results auditable. Thermal stress-hours are a modeled scheduling
-metric—not GPU temperature, PUE, cooling energy, electricity, water, or facility
-savings. This is a practical foundation for thermal-aware orchestration, with room
-for separately validated facility telemetry and operational signals in future
-versions.”
+“Direct percentages appear only when schedulers complete the same workload-ID set.
+If one drops the custom workload, the percentage becomes unavailable instead of
+making omitted work look like an improvement.”
 
-**Do not claim:** production readiness, guaranteed savings, or measured facility
-outcomes.
+## 2:22–2:40 — Boundary and close
 
-## Demo failure plan
+**On screen:** Point to the REAL, MODELED, LIVE, and NOT MEASURED labels.
 
-If terminal execution fails during recording:
+**Presenter says:**
+
+“ThermalShift turns FortyGuard environmental intelligence into an operational signal
+for flexible distributed AI workloads. Thermal stress-hours are a modeled scheduling
+metric—not measured cooling, energy, water, PUE, or facility savings. The result is
+a clear, reproducible, auditable workload decision that keeps feasibility first.”
+
+## Recording guardrails
+
+- Do not describe Scenario Lab as official benchmark evidence.
+- Do not imply the application uses live or real-time FortyGuard conditions.
+- Do not call stress-hours an energy unit or claim facility savings.
+- Do not show credentials, private cache data, activity IDs, request payloads, or
+  `map_data`.
+- Do not run a collector or make a FortyGuard request during recording.
+
+## Offline committed-evidence fallback
+
+If hosting is unavailable during recording:
 
 1. Open the committed
-   [`evidence/summer-midday-v1/report.md`](../evidence/summer-midday-v1/report.md)
-   first and narrate the verified primary result.
-2. Use
-   [`evidence/winter-overnight-v1/report.md`](../evidence/winter-overnight-v1/report.md)
-   for the one-sentence robustness result.
-3. Explain that both reports and their JSON records were produced by the repository's
-   cache-only benchmark command.
-4. Use pre-generated synthetic artifacts only as a secondary fallback.
-5. Do not improvise unsupported claims or expose cache contents.
+   [summer report](../evidence/summer-midday-v1/report.md) and narrate the verified
+   20.1%, 18.4%, 10/10, and 100% result.
+2. Use the [summer benchmark JSON](../evidence/summer-midday-v1/benchmark.json) if a
+   machine-readable record is useful on screen.
+3. Mention the [winter report](../evidence/winter-overnight-v1/report.md) only as
+   robustness evidence near the modeled stress floor.
+4. Explain that the committed reports were produced by the cache-only benchmark
+   path. Do not substitute synthetic results for official evidence.
 
 ## Pre-recording checklist
 
-- [x] FortyGuard timezone response received
-- [x] Adapter semantics confirmed
-- [x] Summer replay complete
-- [x] Summer historical artifact generated
-- [x] Summer historical comparison reviewed
-- [x] Winter replay complete
-- [x] Winter historical artifact generated
-- [x] Winter historical comparison reviewed
-- [x] README historical evidence updated
-- [x] Submission summary updated with validated historical result
-- [x] Demo script updated
+- [x] Summer and winter historical evidence reviewed
+- [x] Live demo deployed
+- [x] Live Scenario Lab manually verified
+- [x] Live demo URL added
 - [ ] Demo video recorded
 - [ ] Public repository checked
 - [ ] FortyGuard collaborator requirement checked
-- [ ] Live-demo URL added if applicable
 - [ ] Video URL added
 - [ ] Final form submitted
-
-## Recording readiness
-
-- [ ] Terminal font and zoom are readable at video resolution
-- [ ] Virtual environment and dependencies are ready
-- [ ] Cache-only summer command has been rehearsed offline
-- [ ] Committed historical reports are open as fallback tabs
-- [ ] No API key, activity ID, cache key, raw response, or `map_data` is visible
+- [ ] Browser zoom and text are readable at recording resolution
+- [ ] Committed reports are open as fallback tabs
 - [ ] Final recording remains below three minutes
