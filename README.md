@@ -226,6 +226,19 @@ python -m pytest
 python -m ruff check .
 ```
 
+## Live demo locally
+
+Start the judge-facing evidence dashboard from the repository root:
+
+```bash
+python -m uvicorn thermalshift.web.app:app \
+  --host 0.0.0.0 \
+  --port 8000
+```
+
+Open <http://localhost:8000>. The dashboard reads the committed summer and winter
+historical benchmark artifacts and makes no FortyGuard request.
+
 ## Cache-only historical replay
 
 Run a selected replay from existing validated cache records:

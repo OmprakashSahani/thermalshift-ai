@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="ThermalShift AI committed historical benchmark evidence">
+    <title>ThermalShift AI — Historical Evidence</title>
+    <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="ThermalShift AI home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>ThermalShift AI</span>
+      </a>
+      <nav aria-label="Dashboard sections">
+        <a href="#evidence">Evidence</a>
+        <a href="#decisions">Decisions</a>
+        <a href="#method">Method</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero shell" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="live-dot"></span> Committed evidence · offline</div>
+          <h1 id="hero-title">ThermalShift AI</h1>
+          <p class="tagline">Hyperlocal thermal-aware workload orchestration for distributed AI infrastructure.</p>
+          <div class="evidence-badge" id="evidence-label">Loading committed evidence…</div>
+          <p class="hero-context" id="hero-context"></p>
+        </div>
+
+        <div class="window-panel" aria-label="Historical replay selector">
+          <span class="control-label">Replay window</span>
+          <div class="window-switcher" id="window-switcher" role="group" aria-label="Replay window"></div>
+          <p id="window-detail" class="window-detail"></p>
+        </div>
+
+        <div class="hero-stats" id="hero-stats" aria-live="polite"></div>
+
+        <div class="classification-grid">
+          <article class="classification-card real-card">
+            <span class="classification-label">Real</span>
+            <strong>FortyGuard historical ambient temperatures</strong>
+            <p>Validated AOI mean-temperature observations from the committed replay.</p>
+          </article>
+          <article class="classification-card modeled-card">
+            <span class="classification-label">Modeled</span>
+            <strong id="modeled-classification">Sites, capacities, workloads, thermal stress</strong>
+            <p>Controlled benchmark inputs—not customer infrastructure or facility telemetry.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section shell" id="evidence" aria-labelledby="comparison-title">
+        <div class="section-heading">
+          <div>
+            <span class="kicker">Same inputs. Same workload set.</span>
+            <h2 id="comparison-title">Scheduler comparison</h2>
+          </div>
+          <div class="unit-label">Modeled ambient thermal exposure<br><span>Unit: thermal stress-hours</span></div>
+        </div>
+        <div id="zero-floor-note" class="floor-note" hidden></div>
+        <div class="comparison-list" id="comparison-list"></div>
+        <p class="fairness-note" id="fairness-note"></p>
+      </section>
+
+      <section class="section shell" id="decisions" aria-labelledby="decisions-title">
+        <div class="section-heading decisions-heading">
+          <div>
+            <span class="kicker">Committed scheduler decisions</span>
+            <h2 id="decisions-title">Where and when work runs</h2>
+          </div>
+          <div class="scheduler-switcher" id="scheduler-switcher" role="group" aria-label="Scheduler"></div>
+        </div>
+        <p class="section-intro">Compare placement choices across modeled sites. All times are UTC.</p>
+        <div class="decision-groups" id="decision-groups"></div>
+      </section>
+
+      <section class="section shell" aria-labelledby="sites-title">
+        <div class="section-heading">
+          <div>
+            <span class="kicker">Controlled benchmark geography</span>
+            <h2 id="sites-title">Modeled locations</h2>
+          </div>
+          <p class="section-side-note">No specific real facility or operator is represented.</p>
+        </div>
+        <div class="site-grid" id="site-grid"></div>
+      </section>
+
+      <section class="section method-section" id="method" aria-labelledby="method-title">
+        <div class="shell">
+          <div class="section-heading">
+            <div>
+              <span class="kicker">Evidence pipeline</span>
+              <h2 id="method-title">How ThermalShift works</h2>
+            </div>
+          </div>
+          <div class="method-flow">
+            <article><span>01</span><strong>FortyGuard history</strong><p>Hyperlocal ambient-temperature observations</p></article>
+            <article><span>02</span><strong>Frozen calibration</strong><p>Pooled P10/P90 modeled thermal stress</p></article>
+            <article><span>03</span><strong>Constraint-aware scheduling</strong><p>Completion first, exposure second; capacity, deadlines, and eligibility retained</p></article>
+            <article><span>04</span><strong>Fair comparison</strong><p>Direct percentages only for the same scheduled workload set</p></article>
+          </div>
+          <div class="provenance" id="provenance"></div>
+        </div>
+      </section>
+
+      <section class="section shell boundary-section" aria-labelledby="boundary-title">
+        <div>
+          <span class="kicker">Scientific boundary</span>
+          <h2 id="boundary-title">A scheduling metric—not an energy claim</h2>
+          <p class="boundary-lead" id="modeled-metric"></p>
+          <p>Facility-level claims require separate telemetry and validation.</p>
+        </div>
+        <div class="boundary-card">
+          <strong>ThermalShift does not establish</strong>
+          <ul id="boundary-list"></ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="shell">
+      <span>ThermalShift AI · FortyGuard Hackathon’26</span>
+      <span>Read-only dashboard · committed evidence</span>
+    </footer>
+
+    <div class="error-screen" id="error-screen" hidden role="alert">
+      <div>
+        <span class="eyebrow">Evidence unavailable</span>
+        <h1>The committed benchmark evidence could not be loaded.</h1>
+        <p id="error-message">No substitute data was used.</p>
+      </div>
+    </div>
+  </body>
+</html>
