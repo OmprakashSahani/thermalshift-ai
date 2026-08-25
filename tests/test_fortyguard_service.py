@@ -70,7 +70,13 @@ async def test_service_processing_to_completed_without_real_sleep() -> None:
     async def record_sleep(delay: float) -> None:
         sleeps.append(delay)
 
-    result = await create_heatmap(client, {}, delays=(0.25,), sleep=record_sleep)
+    result = await create_heatmap(
+        client,
+        {},
+        poll_interval_seconds=0.25,
+        max_status_checks=2,
+        sleep=record_sleep,
+    )
 
     assert isinstance(result, HeatmapResult)
     assert sleeps == [0.25]
@@ -114,9 +120,13 @@ async def test_service_timeout_retains_submitted_activity_id() -> None:
     client = FakeHeatmapClient([processing, processing])
 
     with pytest.raises(FortyGuardPollingTimeout) as caught:
-        await create_heatmap(client, {}, delays=(0,), sleep=no_sleep)
+        await create_heatmap(
+            client, {}, poll_interval_seconds=0, max_status_checks=2, sleep=no_sleep
+        )
 
     assert caught.value.activity_id == "returned-activity-id"
+    assert client.submissions == [{}]
+    assert client.polled_activity_ids == ["returned-activity-id"] * 2
 
 
 @pytest.mark.asyncio

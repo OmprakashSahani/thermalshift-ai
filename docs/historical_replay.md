@@ -61,6 +61,14 @@ historical service. One failure stops all later new submissions without
 discarding earlier successes; exception details and credentials are not
 printed.
 
+The default asynchronous wait makes at most 120 status GETs at five-second
+intervals, matching FortyGuard's public Quickstart as of the integration design.
+This is a finite client policy, not a guarantee that every activity will finish in
+that period. The initial GET is one check and there is no sleep after the final
+check. These polling GETs do not count against `--max-api-calls`, which limits only
+new heatmap POST submissions. A timeout is not cached or automatically replaced
+with another POST; its activity ID is retained and later new submissions stop.
+
 Failure output distinguishes `terminal_activity_failed`, `polling_timeout`,
 `http_error`, `response_error`, and `generic_error`. A terminal failure means
 FortyGuard explicitly reported `Failed`; a polling timeout means only that

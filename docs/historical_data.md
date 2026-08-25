@@ -48,6 +48,16 @@ a timed-out remote activity may still be running, so blind resubmission could
 duplicate work. Following FortyGuard's recommendation for failed tasks, known
 activity IDs are recorded for diagnosis or support.
 
+By default, ThermalShift checks asynchronous status up to 120 times at five-second
+intervals. The initial GET counts as the first check, sleeps occur only between
+checks, and the client makes no more than 120 status GETs. This finite client-side
+policy mirrors FortyGuard's public Quickstart as of this integration design; it is
+not an API guarantee or a promise that every activity completes within that wait.
+Status GETs are distinct from new `POST /v1/heatmap` submissions and do not consume
+the collector's `--max-api-calls` submission budget. Exhausting the status-check
+limit retains the activity ID, does not cache an incomplete result, and never
+triggers an automatic replacement POST.
+
 A `response_error` with an activity ID means submission succeeded, but the
 subsequent status response could not be safely interpreted under the client
 contract. It is not a terminal activity failure. Safe response reason codes and

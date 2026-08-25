@@ -1,10 +1,13 @@
 """Bounded asynchronous polling for FortyGuard activities."""
 
 import asyncio
-from collections.abc import Awaitable, Callable, Iterable
+from collections.abc import Awaitable, Callable
 from typing import Protocol
 
 from thermalshift.fortyguard.models import ActivityStatus
+
+DEFAULT_STATUS_POLL_INTERVAL_SECONDS = 5.0
+DEFAULT_MAX_STATUS_CHECKS = 120
 
 
 class StatusClient(Protocol):
@@ -30,7 +33,7 @@ class FortyGuardActivityFailed(FortyGuardPollingError):
 
 
 class FortyGuardPollingTimeout(FortyGuardPollingError):
-    """Raised when an activity remains processing after all polling delays."""
+    """Raised when an activity remains processing after all allowed checks."""
 
     def __init__(self, activity_id: str) -> None:
         if not activity_id.strip():
@@ -43,27 +46,25 @@ async def wait_for_completion(
     client: StatusClient,
     activity_id: str,
     *,
-    delays: Iterable[float] = (3.0, 6.0, 12.0),
+    poll_interval_seconds: float = DEFAULT_STATUS_POLL_INTERVAL_SECONDS,
+    max_status_checks: int = DEFAULT_MAX_STATUS_CHECKS,
     sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
 ) -> ActivityStatus:
-    """Poll an activity to completion using a finite sequence of delays."""
+    """Poll an activity to completion with a finite number of status checks."""
     if not activity_id.strip():
         raise ValueError("activity_id must not be blank")
-    polling_delays = tuple(delays)
-    if any(delay < 0 for delay in polling_delays):
-        raise ValueError("Polling delays must not be negative")
+    if poll_interval_seconds < 0:
+        raise ValueError("poll_interval_seconds must not be negative")
+    if max_status_checks < 1:
+        raise ValueError("max_status_checks must be at least 1")
 
-    status = await client.get_status(activity_id)
-    for delay in polling_delays:
+    for check_number in range(max_status_checks):
+        status = await client.get_status(activity_id)
         result = _evaluate(status, activity_id)
         if result is not None:
             return result
-        await sleep(delay)
-        status = await client.get_status(activity_id)
-
-    result = _evaluate(status, activity_id)
-    if result is not None:
-        return result
+        if check_number < max_status_checks - 1:
+            await sleep(poll_interval_seconds)
     raise FortyGuardPollingTimeout(activity_id)
 
 

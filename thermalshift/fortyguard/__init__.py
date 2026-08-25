@@ -8,6 +8,8 @@ from thermalshift.fortyguard.client import (
 )
 from thermalshift.fortyguard.models import ActivityStatus, HeatmapResult
 from thermalshift.fortyguard.poller import (
+    DEFAULT_MAX_STATUS_CHECKS,
+    DEFAULT_STATUS_POLL_INTERVAL_SECONDS,
     FortyGuardActivityFailed,
     FortyGuardPollingError,
     FortyGuardPollingTimeout,
@@ -17,6 +19,8 @@ from thermalshift.fortyguard.service import FortyGuardStatusRequestError, create
 
 __all__ = [
     "ActivityStatus",
+    "DEFAULT_MAX_STATUS_CHECKS",
+    "DEFAULT_STATUS_POLL_INTERVAL_SECONDS",
     "FortyGuardActivityFailed",
     "FortyGuardClient",
     "FortyGuardError",

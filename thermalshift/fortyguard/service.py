@@ -1,12 +1,16 @@
 """High-level composition of FortyGuard submission and polling."""
 
 import asyncio
-from collections.abc import Awaitable, Callable, Iterable, Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from typing import Any, Protocol
 
 from thermalshift.fortyguard.client import FortyGuardHTTPError, FortyGuardResponseError
 from thermalshift.fortyguard.models import ActivityStatus, HeatmapResult
-from thermalshift.fortyguard.poller import wait_for_completion
+from thermalshift.fortyguard.poller import (
+    DEFAULT_MAX_STATUS_CHECKS,
+    DEFAULT_STATUS_POLL_INTERVAL_SECONDS,
+    wait_for_completion,
+)
 
 
 class HeatmapClient(Protocol):
@@ -48,13 +52,20 @@ async def create_heatmap(
     client: HeatmapClient,
     payload: Mapping[str, Any],
     *,
-    delays: Iterable[float] = (3.0, 6.0, 12.0),
+    poll_interval_seconds: float = DEFAULT_STATUS_POLL_INTERVAL_SECONDS,
+    max_status_checks: int = DEFAULT_MAX_STATUS_CHECKS,
     sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
 ) -> HeatmapResult:
     """Submit a heatmap once, wait for completion, and return its result."""
     activity_id = await client.submit_heatmap(payload)
     try:
-        status = await wait_for_completion(client, activity_id, delays=delays, sleep=sleep)
+        status = await wait_for_completion(
+            client,
+            activity_id,
+            poll_interval_seconds=poll_interval_seconds,
+            max_status_checks=max_status_checks,
+            sleep=sleep,
+        )
     except FortyGuardHTTPError as exc:
         raise FortyGuardStatusRequestError(
             activity_id, "http_error", status_code=exc.status_code

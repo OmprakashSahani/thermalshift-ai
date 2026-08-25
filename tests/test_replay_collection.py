@@ -340,6 +340,34 @@ async def test_failed_activity_exposes_safe_id_and_stops_later_new_calls(
 
 
 @pytest.mark.asyncio
+async def test_timeout_status_checks_do_not_expand_post_budget_or_retry(
+    tmp_path: Path,
+) -> None:
+    class TimeoutService:
+        def __init__(self) -> None:
+            self.post_count = 0
+            self.status_get_count = 0
+
+        async def get_historical_temperature(self, site, timestamp):
+            self.post_count += 1
+            self.status_get_count += 3
+            raise FortyGuardPollingTimeout("activity-timeout")
+
+    cache = HeatmapResultCache(tmp_path)
+    service = TimeoutService()
+
+    summary = await execute_replay_collection(
+        SUMMER_WINDOW, service, cache, max_api_calls=1, output=lambda _: None
+    )
+
+    assert summary.api_calls_made == 1
+    assert service.post_count == 1
+    assert service.status_get_count == 3
+    assert summary.failed == 1
+    assert summary.skipped == 23
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("error", "expected"),
     (
