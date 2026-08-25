@@ -33,7 +33,7 @@ async def test_healthz_is_lightweight_and_healthy() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "status": "healthy",
-        "mode": "committed-evidence-only",
+        "mode": "evidence-and-interactive-simulation",
     }
 
 
@@ -87,8 +87,12 @@ async def test_static_assets_resolve_without_external_dependencies() -> None:
     assert "https://" not in javascript.text
     assert 'aria-pressed' in javascript.text
     assert 'scope=\\"col\\"' in javascript.text
+    assert 'heading.scope = "row"' in javascript.text
+    assert 'byId("scenario-result").hidden = true' in javascript.text
     assert "No synthetic substitute was used" in javascript.text
     assert "prefers-reduced-motion" in css.text
+    assert 'fetch("/api/scenario"' in javascript.text
+    assert "http://" not in javascript.text
 
 
 async def test_default_paths_work_after_current_directory_changes(

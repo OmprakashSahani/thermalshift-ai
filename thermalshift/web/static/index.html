@@ -16,6 +16,7 @@
       </a>
       <nav aria-label="Dashboard sections">
         <a href="#evidence">Evidence</a>
+        <a href="#scenario-lab">Scenario Lab</a>
         <a href="#decisions">Decisions</a>
         <a href="#method">Method</a>
       </nav>
@@ -64,6 +65,48 @@
         <div id="zero-floor-note" class="floor-note" hidden></div>
         <div class="comparison-list" id="comparison-list"></div>
         <p class="fairness-note" id="fairness-note"></p>
+      </section>
+
+      <section class="section lab-section" id="scenario-lab" aria-labelledby="lab-title">
+        <div class="shell">
+          <span class="kicker">ThermalShift Scenario Lab</span>
+          <h2 id="lab-title">Run the optimizer yourself</h2>
+          <p class="lab-subtitle">Give ThermalShift one more flexible AI workload and rerun the schedulers against validated FortyGuard historical conditions.</p>
+          <div class="simulation-chip">INTERACTIVE SIMULATION · FORTYGUARD HISTORICAL CONDITIONS</div>
+          <strong class="nonofficial">INTERACTIVE SIMULATION — NOT OFFICIAL BENCHMARK EVIDENCE</strong>
+          <p>Live scheduler recomputation using committed FortyGuard historical conditions and user-defined modeled workload inputs.</p>
+
+          <form id="scenario-form" class="scenario-form">
+            <fieldset><legend>Historical conditions</legend><div id="lab-window" class="preset-row"></div></fieldset>
+            <fieldset><legend>GPU demand</legend><div id="gpu-presets" class="preset-row"></div></fieldset>
+            <fieldset><legend>Duration</legend><div id="duration-presets" class="preset-row"></div></fieldset>
+            <div class="offset-controls">
+              <label>Release <span id="release-time"></span><input id="release-offset" type="range" min="0" max="4" step="1" value="0"></label>
+              <label>Deadline <span id="deadline-time"></span><input id="deadline-offset" type="range" min="1" max="6" step="1" value="4"></label>
+            </div>
+            <fieldset><legend>Eligible modeled sites</legend><div id="site-controls" class="site-controls"></div></fieldset>
+            <button class="run-button" id="run-scenario" type="submit">RUN THERMALSHIFT</button>
+            <p id="scenario-error" class="scenario-error" role="alert" aria-live="assertive"></p>
+          </form>
+
+          <section id="scenario-result" class="scenario-result" hidden aria-live="polite">
+            <span class="kicker">Live optimizer result</span>
+            <div id="scenario-cards" class="scenario-cards"></div>
+            <p id="scenario-fairness" class="fairness-note"></p>
+            <p id="scenario-statement"></p>
+          </section>
+          <div class="landscape-block">
+            <h3>FortyGuard historical ambient conditions → modeled thermal stress</h3>
+            <p>Each cell shows modeled stress (0–1) and AOI mean ambient temperature (°C). Four modeled locations across six UTC hours; these are not identified facilities.</p>
+            <div id="thermal-landscape" class="landscape-wrap"></div>
+          </div>
+          <div class="lab-boundaries">
+            <div><strong>REAL INPUT</strong><span>FortyGuard historical ambient temperature</span></div>
+            <div><strong>MODELED</strong><span>sites · GPU capacities · user workload · thermal-stress metric</span></div>
+            <div><strong>LIVE</strong><span>scheduler recomputation</span></div>
+            <div><strong>NOT MEASURED</strong><span>energy · cooling · PUE · water · facility savings</span></div>
+          </div>
+        </div>
       </section>
 
       <section class="section shell" id="decisions" aria-labelledby="decisions-title">
@@ -123,7 +166,7 @@
 
     <footer class="shell">
       <span>ThermalShift AI · FortyGuard Hackathon’26</span>
-      <span>Read-only dashboard · committed evidence</span>
+      <span>Read-only evidence · ephemeral interactive simulation</span>
     </footer>
 
     <div class="error-screen" id="error-screen" hidden role="alert">

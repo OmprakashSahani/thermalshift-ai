@@ -1,0 +1,159 @@
+{
+  "calibration_lower_reference_c": 4.567570294117648,
+  "calibration_observation_count": 28,
+  "calibration_rule": "pooled_p10_p90",
+  "calibration_upper_reference_c": 37.01878625,
+  "classification": "public_interactive_simulation_input",
+  "entries": [
+    {
+      "site_id": "ashburn-va",
+      "temperature_c": -2.6108312500000004,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T06:00:00Z"
+    },
+    {
+      "site_id": "atlanta-ga",
+      "temperature_c": 5.386064705882354,
+      "thermal_stress_score": 0.025222303314533855,
+      "timestamp_utc": "2024-01-15T06:00:00Z"
+    },
+    {
+      "site_id": "phoenix-az",
+      "temperature_c": 6.85225,
+      "thermal_stress_score": 0.07040351612674203,
+      "timestamp_utc": "2024-01-15T06:00:00Z"
+    },
+    {
+      "site_id": "san-antonio-tx",
+      "temperature_c": -4.2607,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T06:00:00Z"
+    },
+    {
+      "site_id": "ashburn-va",
+      "temperature_c": -3.1435250000000003,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T07:00:00Z"
+    },
+    {
+      "site_id": "atlanta-ga",
+      "temperature_c": 5.0833176470588235,
+      "thermal_stress_score": 0.015893005477586333,
+      "timestamp_utc": "2024-01-15T07:00:00Z"
+    },
+    {
+      "site_id": "phoenix-az",
+      "temperature_c": 5.63100625,
+      "thermal_stress_score": 0.03277029610625687,
+      "timestamp_utc": "2024-01-15T07:00:00Z"
+    },
+    {
+      "site_id": "san-antonio-tx",
+      "temperature_c": -4.6907,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T07:00:00Z"
+    },
+    {
+      "site_id": "ashburn-va",
+      "temperature_c": -2.9045250000000005,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T08:00:00Z"
+    },
+    {
+      "site_id": "atlanta-ga",
+      "temperature_c": 4.736682352941176,
+      "thermal_stress_score": 0.005211270328157705,
+      "timestamp_utc": "2024-01-15T08:00:00Z"
+    },
+    {
+      "site_id": "phoenix-az",
+      "temperature_c": 5.0747374999999995,
+      "thermal_stress_score": 0.015628604073630044,
+      "timestamp_utc": "2024-01-15T08:00:00Z"
+    },
+    {
+      "site_id": "san-antonio-tx",
+      "temperature_c": -4.867375,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T08:00:00Z"
+    },
+    {
+      "site_id": "ashburn-va",
+      "temperature_c": -3.2038187500000004,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T09:00:00Z"
+    },
+    {
+      "site_id": "atlanta-ga",
+      "temperature_c": 4.648805882352941,
+      "thermal_stress_score": 0.002503314154567681,
+      "timestamp_utc": "2024-01-15T09:00:00Z"
+    },
+    {
+      "site_id": "phoenix-az",
+      "temperature_c": 3.92016875,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T09:00:00Z"
+    },
+    {
+      "site_id": "san-antonio-tx",
+      "temperature_c": -5.2938624999999995,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T09:00:00Z"
+    },
+    {
+      "site_id": "ashburn-va",
+      "temperature_c": -4.4846812499999995,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T10:00:00Z"
+    },
+    {
+      "site_id": "atlanta-ga",
+      "temperature_c": 4.7057529411764705,
+      "thermal_stress_score": 0.004258165464329052,
+      "timestamp_utc": "2024-01-15T10:00:00Z"
+    },
+    {
+      "site_id": "phoenix-az",
+      "temperature_c": 3.4758312499999997,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T10:00:00Z"
+    },
+    {
+      "site_id": "san-antonio-tx",
+      "temperature_c": -5.3178,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T10:00:00Z"
+    },
+    {
+      "site_id": "ashburn-va",
+      "temperature_c": -4.0635562499999995,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T11:00:00Z"
+    },
+    {
+      "site_id": "atlanta-ga",
+      "temperature_c": 5.2,
+      "thermal_stress_score": 0.019488628923555417,
+      "timestamp_utc": "2024-01-15T11:00:00Z"
+    },
+    {
+      "site_id": "phoenix-az",
+      "temperature_c": 3.193975,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T11:00:00Z"
+    },
+    {
+      "site_id": "san-antonio-tx",
+      "temperature_c": -5.27,
+      "thermal_stress_score": 0.0,
+      "timestamp_utc": "2024-01-15T11:00:00Z"
+    }
+  ],
+  "observation_type": "historical",
+  "request_time_interpretation": "AOI-local start_time; FortyGuard infers timezone and DST from the requested area; ThermalShift converts each orchestration UTC instant to modeled-site local time.",
+  "schema_version": "1.0",
+  "scientific_boundary": "FortyGuard historical ambient temperatures; modeled thermal-stress scores for interactive scheduling simulation.",
+  "temperature_source": "fortyguard",
+  "window_id": "winter-overnight-v1"
+}

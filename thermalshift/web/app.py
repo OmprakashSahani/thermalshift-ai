@@ -6,6 +6,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, Response
 
 from .evidence import EvidenceLoadError, load_all_evidence, load_window_evidence
+from .scenario import ScenarioRequest, run_scenario
+from .thermal_grid import ThermalGridArtifactError
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
 REPOSITORY_ROOT = PACKAGE_ROOT.parents[1]
@@ -20,7 +22,7 @@ def create_app(evidence_root: Path = DEFAULT_EVIDENCE_ROOT) -> FastAPI:
     javascript = (STATIC_ROOT / "app.js").read_text(encoding="utf-8")
     application = FastAPI(
         title="ThermalShift AI Judge Demo",
-        description="Read-only visualization of committed FortyGuard-backed evidence.",
+        description="Committed evidence plus ephemeral live scheduling simulation.",
         version="0.1.0",
     )
 
@@ -38,7 +40,7 @@ def create_app(evidence_root: Path = DEFAULT_EVIDENCE_ROOT) -> FastAPI:
 
     @application.get("/healthz")
     async def healthz() -> dict[str, str]:
-        return {"status": "healthy", "mode": "committed-evidence-only"}
+        return {"status": "healthy", "mode": "evidence-and-interactive-simulation"}
 
     @application.get("/api/evidence")
     async def all_evidence() -> dict[str, object]:
@@ -54,6 +56,13 @@ def create_app(evidence_root: Path = DEFAULT_EVIDENCE_ROOT) -> FastAPI:
         except KeyError as error:
             raise HTTPException(status_code=404, detail="Unknown evidence window") from error
         except EvidenceLoadError as error:
+            raise HTTPException(status_code=503, detail=str(error)) from error
+
+    @application.post("/api/scenario")
+    async def scenario(request: ScenarioRequest) -> dict[str, object]:
+        try:
+            return run_scenario(request, evidence_root)
+        except ThermalGridArtifactError as error:
             raise HTTPException(status_code=503, detail=str(error)) from error
 
     return application

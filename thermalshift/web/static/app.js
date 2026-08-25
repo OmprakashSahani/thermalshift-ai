@@ -6,7 +6,8 @@ const schedulerLabels = {
   thermalshift: "ThermalShift",
 };
 
-const state = { evidence: null, window: null, scheduler: "thermalshift" };
+const state = { evidence: null, window: null, scheduler: "thermalshift", labWindow: null,
+  gpu: 16, duration: 2, scenario: null, eligibleSiteIds: new Set() };
 
 const byId = (id) => document.getElementById(id);
 const percent = (value) => `${(Number(value) * 100).toFixed(1)}%`;
@@ -246,7 +247,111 @@ function render() {
   renderDecisions();
   renderSites();
   renderMethodAndBoundary();
+  if (!state.labWindow) state.labWindow = state.evidence.windows[0];
+  if (!state.eligibleSiteIds.size) {
+    state.eligibleSiteIds = new Set(state.labWindow.sites.map((site) => site.site_id));
+  }
+  renderScenarioControls();
 }
+
+function preset(hostId, values, selected, labeler, choose) {
+  const host = byId(hostId); host.replaceChildren();
+  values.forEach((value) => host.append(button(labeler(value), value === selected, () => {
+    choose(value); renderScenarioControls();
+  })));
+}
+
+function renderScenarioControls() {
+  preset("lab-window", state.evidence.windows, state.labWindow, (item) => item.label, (item) => {
+    state.labWindow = item; state.scenario = null; byId("scenario-result").hidden = true;
+  });
+  preset("gpu-presets", [8, 16, 24, 32, 48, 64], state.gpu, (v) => `${v}`, (v) => { state.gpu = v; });
+  preset("duration-presets", [1, 2, 3], state.duration, (v) => `${v}h`, (v) => { state.duration = v; });
+  const sites = byId("site-controls"); sites.replaceChildren();
+  state.labWindow.sites.forEach((site) => {
+    const label = element("label", "site-toggle");
+    const input = document.createElement("input"); input.type = "checkbox"; input.value = site.site_id;
+    input.checked = state.eligibleSiteIds.has(site.site_id);
+    input.addEventListener("change", () => {
+      if (input.checked) state.eligibleSiteIds.add(site.site_id);
+      else state.eligibleSiteIds.delete(site.site_id);
+    });
+    label.append(input, document.createTextNode(site.location.split(",")[0])); sites.append(label);
+  });
+  updateOffsets();
+  renderLandscape(state.scenario ? state.scenario.thermal_landscape : null);
+}
+
+function offsetTime(offset) {
+  const start = new Date(state.labWindow.provenance.replay_start_utc);
+  start.setUTCHours(start.getUTCHours() + Number(offset));
+  return `${String(start.getUTCHours()).padStart(2, "0")}:00 UTC`;
+}
+
+function updateOffsets() {
+  byId("release-time").textContent = offsetTime(byId("release-offset").value);
+  byId("deadline-time").textContent = offsetTime(byId("deadline-offset").value);
+}
+
+function renderLandscape(entries) {
+  const host = byId("thermal-landscape"); host.replaceChildren();
+  if (!entries) { host.append(element("p", "", "Run ThermalShift to load the sanitized historical grid.")); return; }
+  const table = element("table", "landscape-table");
+  const times = [...new Set(entries.map((item) => item.timestamp_utc))];
+  const head = document.createElement("thead"); const hr = document.createElement("tr");
+  const corner = element("th", "", "Modeled site"); corner.scope = "col"; hr.append(corner);
+  times.forEach((time) => { const heading = element("th", "", timestamp(time).slice(11)); heading.scope = "col"; hr.append(heading); }); head.append(hr);
+  const body = document.createElement("tbody");
+  state.labWindow.sites.forEach((site) => {
+    const row = document.createElement("tr"); const heading = element("th", "", site.location.split(",")[0]); heading.scope = "row"; row.append(heading);
+    times.forEach((time) => {
+      const item = entries.find((entry) => entry.site_id === site.site_id && entry.timestamp_utc === time);
+      const cell = element("td", "stress-cell", `${Number(item.thermal_stress_score).toFixed(2)} · ${Number(item.temperature_c).toFixed(1)}°C`);
+      cell.style.setProperty("--stress", Number(item.thermal_stress_score)); row.append(cell);
+    }); body.append(row);
+  }); table.append(head, body); host.append(table);
+}
+
+function renderScenarioResult(result) {
+  const host = byId("scenario-cards"); host.replaceChildren();
+  result.schedulers.forEach((run) => {
+    const custom = run.whatif; const card = element("article", `result-card ${run.scheduler_name}`);
+    card.append(element("h3", "", schedulerLabels[run.scheduler_name]));
+    card.append(element("strong", `placement-status ${custom.status}`, custom.status.toUpperCase()));
+    if (custom.status === "scheduled") {
+      card.append(element("p", "result-location", state.labWindow.sites.find((s) => s.site_id === custom.site_id).location));
+      card.append(element("p", "", `${timestamp(custom.start_utc)} → ${timestamp(custom.end_utc)}`));
+      card.append(element("p", "", `${exposure(custom.thermal_exposure)} custom stress-hours · ${exposure(custom.mean_modeled_stress)} mean stress`));
+    } else card.append(element("p", "", custom.reason));
+    card.append(element("p", "whole-metrics", `${run.scheduled_count}/${run.total_workload_count} workloads · ${percent(run.deadline_satisfaction_rate)} deadlines · ${exposure(run.total_thermal_exposure_stress_hours)} total stress-hours`));
+    host.append(card);
+  });
+  const valid = result.comparisons.every((item) => item.direct_thermal_comparison_valid);
+  byId("scenario-fairness").textContent = valid
+    ? "Fairness comparison valid: all schedulers placed the same workload set."
+    : "Direct percentage unavailable: scheduled workload sets differ.";
+  byId("scenario-statement").textContent = `${result.statement} ${result.comparison_boundary}`;
+  byId("scenario-result").hidden = false; renderLandscape(result.thermal_landscape);
+}
+
+byId("release-offset").addEventListener("input", updateOffsets);
+byId("deadline-offset").addEventListener("input", updateOffsets);
+byId("scenario-form").addEventListener("submit", async (event) => {
+  event.preventDefault(); const submit = byId("run-scenario"); const error = byId("scenario-error");
+  submit.disabled = true; submit.textContent = "RUNNING SCHEDULERS…"; error.textContent = "";
+  state.scenario = null; byId("scenario-result").hidden = true;
+  const eligible = [...document.querySelectorAll("#site-controls input:checked")].map((item) => item.value);
+  try {
+    const response = await fetch("/api/scenario", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ window_id: state.labWindow.window_id, gpu_demand: state.gpu, duration_hours: state.duration, release_offset_hours: Number(byId("release-offset").value), deadline_offset_hours: Number(byId("deadline-offset").value), eligible_site_ids: eligible }) });
+    const data = await response.json();
+    if (!response.ok) {
+      const detail = Array.isArray(data.detail) ? data.detail[0]?.msg : data.detail;
+      throw new Error(typeof detail === "string" ? detail : `Request failed (${response.status})`);
+    }
+    state.scenario = data; renderScenarioResult(data);
+  } catch (problem) { error.textContent = problem instanceof Error ? problem.message : "Scenario request failed."; }
+  finally { submit.disabled = false; submit.textContent = "RUN THERMALSHIFT"; }
+});
 
 async function initialize() {
   try {
