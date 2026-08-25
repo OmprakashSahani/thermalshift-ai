@@ -239,6 +239,14 @@ python -m uvicorn thermalshift.web.app:app \
 Open <http://localhost:8000>. The dashboard reads the committed summer and winter
 historical benchmark artifacts and makes no FortyGuard request.
 
+### Deploy on Render
+
+Render deploys the FastAPI service directly from this repository using the
+configuration in `render.yaml`. Python is pinned to 3.12 by `.python-version`, and
+Render checks service health at `/healthz`. The deployed dashboard reads only the
+committed historical evidence, so the judge demo does not need a FortyGuard
+credential.
+
 ## Cache-only historical replay
 
 Run a selected replay from existing validated cache records:
