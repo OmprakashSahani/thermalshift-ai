@@ -1,14 +1,26 @@
 """Run the deterministic offline ThermalShift scheduler demonstration."""
 
+import argparse
+from pathlib import Path
+
+from thermalshift.benchmark.artifacts import (
+    build_benchmark_artifact,
+    write_benchmark_artifacts,
+)
 from thermalshift.benchmark.comparison import format_headline, thermalshift_comparisons
 from thermalshift.benchmark.runner import run_benchmark
 from thermalshift.benchmark.synthetic import create_synthetic_scenario
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     """Print compact scheduler metrics and fairness-qualified comparisons."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output-dir", type=Path)
+    args = parser.parse_args(argv)
     scenario = create_synthetic_scenario()
-    report = run_benchmark(scenario)
+    report = (
+        run_benchmark(scenario, timer=lambda: 0) if args.output_dir else run_benchmark(scenario)
+    )
     print("SYNTHETIC DEMONSTRATION — NOT FORTYGUARD BENCHMARK EVIDENCE")
     headers = (
         "Scheduler",
@@ -47,19 +59,23 @@ def main() -> None:
         baseline = comparison.baseline_scheduler.replace("_", " ").title()
         print(f"\nThermalShift vs {baseline}:")
         print(f"  completion preserved: {comparison.completion_preserved}")
-        print(
-            "  deadline satisfaction preserved: "
-            f"{comparison.deadline_satisfaction_preserved}"
-        )
+        print(f"  deadline satisfaction preserved: {comparison.deadline_satisfaction_preserved}")
         print(f"  direct comparison valid: {comparison.direct_thermal_comparison_valid}")
         if comparison.thermal_exposure_reduction_pct is None:
             print("  thermal reduction percentage: unavailable")
         else:
             print(
-                "  thermal reduction percentage: "
-                f"{comparison.thermal_exposure_reduction_pct:.1f}%"
+                f"  thermal reduction percentage: {comparison.thermal_exposure_reduction_pct:.1f}%"
             )
         print(f"  Synthetic illustration only: {format_headline(comparison)}")
+
+    if args.output_dir:
+        artifact = build_benchmark_artifact(
+            scenario, report, evidence_type="synthetic_demonstration"
+        )
+        json_path, markdown_path = write_benchmark_artifacts(artifact, args.output_dir)
+        print(f"\nWrote {json_path}")
+        print(f"Wrote {markdown_path}")
 
 
 if __name__ == "__main__":

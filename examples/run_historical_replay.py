@@ -1,7 +1,13 @@
 """Run a FortyGuard-backed historical replay entirely from local cache."""
 
 import argparse
+from pathlib import Path
 
+from thermalshift.benchmark.artifacts import (
+    HistoricalProvenance,
+    build_benchmark_artifact,
+    write_benchmark_artifacts,
+)
 from thermalshift.benchmark.comparison import format_headline, thermalshift_comparisons
 from thermalshift.benchmark.runner import run_benchmark
 from thermalshift.fortyguard.cache import HeatmapResultCache
@@ -20,6 +26,7 @@ def main(argv: list[str] | None = None, cache: HeatmapResultCache | None = None)
         choices=("summer-midday-v1", "winter-overnight-v1"),
         default="summer-midday-v1",
     )
+    parser.add_argument("--output-dir", type=Path)
     args = parser.parse_args(argv)
     result_cache = cache or HeatmapResultCache()
     window = get_replay_window(args.window)
@@ -43,7 +50,9 @@ def main(argv: list[str] | None = None, cache: HeatmapResultCache | None = None)
         return 1
 
     scenario = build_historical_replay_scenario(window, result_cache)
-    report = run_benchmark(scenario)
+    report = (
+        run_benchmark(scenario, timer=lambda: 0) if args.output_dir else run_benchmark(scenario)
+    )
     print("FORTYGUARD-BACKED HISTORICAL REPLAY")
     print("REAL HISTORICAL AMBIENT TEMPERATURES + MODELED WORKLOADS")
     print(
@@ -64,12 +73,26 @@ def main(argv: list[str] | None = None, cache: HeatmapResultCache | None = None)
         baseline = comparison.baseline_scheduler.replace("_", " ").title()
         print(f"\nThermalShift vs {baseline}:")
         print(f"  completion preserved: {comparison.completion_preserved}")
-        print(
-            "  deadline satisfaction preserved: "
-            f"{comparison.deadline_satisfaction_preserved}"
-        )
+        print(f"  deadline satisfaction preserved: {comparison.deadline_satisfaction_preserved}")
         print(f"  direct comparison valid: {comparison.direct_thermal_comparison_valid}")
         print(f"  {format_headline(comparison)}")
+    if args.output_dir:
+        artifact = build_benchmark_artifact(
+            scenario,
+            report,
+            evidence_type="fortyguard_historical_replay",
+            provenance=HistoricalProvenance(
+                replay_window_id=window.window_id,
+                replay_start_utc=window.start_utc,
+                replay_slot_count=window.slot_count,
+                calibration_observation_count=calibration.available_count,
+                calibration_lower_reference_c=calibration.lower_reference_c,
+                calibration_upper_reference_c=calibration.upper_reference_c,
+            ),
+        )
+        json_path, markdown_path = write_benchmark_artifacts(artifact, args.output_dir)
+        print(f"\nWrote {json_path}")
+        print(f"Wrote {markdown_path}")
     return 0
 
 

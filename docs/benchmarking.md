@@ -43,3 +43,31 @@ Ambient-derived modeled thermal stress cannot establish GPU temperature,
 server inlet temperature, PUE, cooling energy, water consumption, electricity
 use, or savings in any of those quantities. Such inferences require facility
 telemetry that this project does not have.
+
+## Evidence artifacts
+
+The deterministic synthetic demonstration can write judge-readable JSON and
+Markdown without network access:
+
+```bash
+python examples/run_synthetic_benchmark.py --output-dir runs/synthetic-demo
+```
+
+The output is explicitly classified as
+`synthetic_demonstration` and is not FortyGuard benchmark evidence. It writes
+`benchmark.json` and `report.md` beneath the selected directory.
+
+A complete cache-backed replay can write the same artifact pair:
+
+```bash
+python examples/run_historical_replay.py \
+  --window summer-midday-v1 \
+  --output-dir runs/summer-midday-v1
+```
+
+Historical output is classified as `fortyguard_historical_replay`: ambient
+temperatures come from FortyGuard, while workloads and site GPU capacities are
+modeled benchmark inputs. If calibration or replay cache inputs are incomplete,
+the command exits nonzero and writes no artifacts. It never collects missing
+data. Request times remain qualified as site-local serialization by the
+ThermalShift adapter while FortyGuard input timezone semantics await confirmation.
