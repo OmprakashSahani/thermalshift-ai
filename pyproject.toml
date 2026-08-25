@@ -20,6 +20,16 @@ dev = [
     "ruff>=0.9",
 ]
 
+[tool.setuptools.packages.find]
+include = ["thermalshift*"]
+
+[tool.setuptools.package-data]
+"thermalshift.web" = [
+    "static/index.html",
+    "static/app.css",
+    "static/app.js",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
