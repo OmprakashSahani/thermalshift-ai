@@ -50,9 +50,7 @@ def main(argv: list[str] | None = None, cache: HeatmapResultCache | None = None)
         return 1
 
     scenario = build_historical_replay_scenario(window, result_cache)
-    report = (
-        run_benchmark(scenario, timer=lambda: 0) if args.output_dir else run_benchmark(scenario)
-    )
+    report = run_benchmark(scenario)
     print("FORTYGUARD-BACKED HISTORICAL REPLAY")
     print("REAL HISTORICAL AMBIENT TEMPERATURES + MODELED WORKLOADS")
     print(

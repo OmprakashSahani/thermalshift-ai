@@ -18,9 +18,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--output-dir", type=Path)
     args = parser.parse_args(argv)
     scenario = create_synthetic_scenario()
-    report = (
-        run_benchmark(scenario, timer=lambda: 0) if args.output_dir else run_benchmark(scenario)
-    )
+    report = run_benchmark(scenario)
     print("SYNTHETIC DEMONSTRATION — NOT FORTYGUARD BENCHMARK EVIDENCE")
     headers = (
         "Scheduler",

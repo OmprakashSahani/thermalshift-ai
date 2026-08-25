@@ -145,9 +145,7 @@ def render_benchmark_markdown(artifact: BenchmarkArtifact) -> str:
         if historical
         else "SYNTHETIC DEMONSTRATION — NOT FORTYGUARD BENCHMARK EVIDENCE"
     )
-    generated_at = (
-        _iso(artifact.generated_at_utc) if artifact.generated_at_utc else "not supplied"
-    )
+    generated_at = _iso(artifact.generated_at_utc) if artifact.generated_at_utc else "not supplied"
     lines = [
         "# ThermalShift Benchmark Report",
         "",
@@ -186,9 +184,7 @@ def render_benchmark_markdown(artifact: BenchmarkArtifact) -> str:
     lines.extend(("## ThermalShift comparisons", ""))
     for comparison in artifact.comparisons:
         baseline_name = str(comparison["baseline_scheduler"]).replace("_", " ").title()
-        lines.append(
-            f"- **ThermalShift vs {baseline_name}:** {comparison['headline']}"
-        )
+        lines.append(f"- **ThermalShift vs {baseline_name}:** {comparison['headline']}")
     lines.extend(("", "## Scheduling decisions", ""))
     for run in artifact.scheduler_runs:
         lines.extend((f"### {run['scheduler_name']}", ""))
@@ -229,7 +225,10 @@ def render_benchmark_markdown(artifact: BenchmarkArtifact) -> str:
             "## Reproducibility",
             "",
             f"Artifact schema: `{artifact.artifact_schema_version}`. Sites and workloads "
-            "are ID-sorted; scheduler and decision order preserve the benchmark report.",
+            "are ID-sorted; scenario inputs, scheduler decisions, thermal metrics, and "
+            "fairness comparisons are deterministic for identical inputs. JSON structure "
+            "and key ordering are stable. Measured `runtime_ms` is observational and may "
+            "vary by machine or execution; `generated_at_utc`, when supplied, is metadata.",
             "",
         )
     )

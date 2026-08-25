@@ -57,6 +57,13 @@ The output is explicitly classified as
 `synthetic_demonstration` and is not FortyGuard benchmark evidence. It writes
 `benchmark.json` and `report.md` beneath the selected directory.
 
+For identical inputs, scenario definitions, scheduler decisions, modeled
+thermal-exposure metrics, fairness comparisons, and site/workload ordering are
+deterministic. JSON structure and key ordering are stable. `runtime_ms` is
+measured execution metadata and may vary by machine or run; it is not rewritten
+for artifact output. `generated_at_utc`, when supplied by a caller, is also
+metadata rather than a scheduling input.
+
 A complete cache-backed replay can write the same artifact pair:
 
 ```bash
