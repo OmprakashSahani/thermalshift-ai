@@ -13,8 +13,9 @@ from .models import BenchmarkMetrics, BenchmarkReport, BenchmarkScenario
 
 ARTIFACT_SCHEMA_VERSION = "1.0"
 REQUEST_TIME_INTERPRETATION = (
-    "site-local serialization under ThermalShift adapter; FortyGuard input timezone "
-    "semantics awaiting confirmation"
+    "AOI-local start_time; FortyGuard infers timezone and DST from AOI polygon "
+    "coordinates; ThermalShift converts each orchestration UTC instant to the modeled "
+    "site local time before submission"
 )
 MODELED_METRIC_BOUNDARY = (
     "Thermal stress-hours are a modeled scheduling metric derived from ambient-temperature inputs."

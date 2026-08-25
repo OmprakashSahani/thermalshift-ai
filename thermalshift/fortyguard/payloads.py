@@ -24,8 +24,10 @@ def build_historical_heatmap_payload(
 ) -> dict[str, Any]:
     """Build a single-hour historical TCM request around a modeled site.
 
-    The aware instant is converted to the site's IANA timezone because the
-    FortyGuard request shape contains local date/time strings but no timezone.
+    The aware instant is converted to the site's IANA timezone. FortyGuard
+    interprets start_time as AOI-local time and infers timezone and DST from
+    the AOI polygon coordinates, as confirmed by its Hackathon Team on
+    2026-08-25.
     """
     if timestamp.tzinfo is None or timestamp.utcoffset() is None:
         raise FortyGuardPayloadError("timestamp must be timezone-aware")

@@ -76,5 +76,7 @@ Historical output is classified as `fortyguard_historical_replay`: ambient
 temperatures come from FortyGuard, while workloads and site GPU capacities are
 modeled benchmark inputs. If calibration or replay cache inputs are incomplete,
 the command exits nonzero and writes no artifacts. It never collects missing
-data. Request times remain qualified as site-local serialization by the
-ThermalShift adapter while FortyGuard input timezone semantics await confirmation.
+data. FortyGuard confirmed on 2026-08-25 that Heatmap `date_time.start_time` is
+AOI-local and that timezone and daylight-saving offset are inferred from polygon
+coordinates; the ThermalShift adapter converts each orchestration UTC instant
+accordingly.

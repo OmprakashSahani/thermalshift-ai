@@ -34,15 +34,15 @@ workloads or real facility telemetry. Cached AOI mean temperature is assessed
 through the calibrated model; scheduling uses the resulting `[0, 1]` thermal
 stress score rather than Celsius.
 
-## Request-time boundary
+## Request-time semantics
 
-`requested_utc` is ThermalShift orchestration metadata. The current payload
-adapter converts that instant to the site's IANA local time because the
-FortyGuard request contains date/time strings without a timezone field. This
-is an explicit adapter assumption. Current public Heatmap documentation does
-not prove the input timezone interpretation, so exact synchronized cross-site
-absolute-time semantics must not be claimed until FortyGuard documentation or
-support confirms them.
+`requested_utc` is ThermalShift orchestration metadata. The payload adapter
+converts that instant to each site's IANA local time before serializing
+`date_time.start_time`. FortyGuard interprets that value as AOI-local time and
+infers the timezone and daylight-saving offset from the AOI polygon coordinates.
+This behavior was confirmed by the FortyGuard Hackathon Team on 2026-08-25 and
+supports representing one orchestration UTC instant with the corresponding local
+wall-clock time for each modeled site.
 
 Replay inherits the benchmark layer's same-input controls and fairness rule:
 direct total-exposure percentages require identical scheduled workload sets.

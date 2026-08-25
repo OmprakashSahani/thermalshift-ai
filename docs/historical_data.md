@@ -7,9 +7,10 @@ AOI. Those choices describe the request sent; they do not assert a finer output 
 
 The FortyGuard payload has date and time strings but no timezone field. ThermalShift converts each
 requested timezone-aware instant into the modeled site's IANA timezone before serializing those
-strings. The original aware instant is retained on the resulting domain observation. This adapter
-behavior does not prove undocumented FortyGuard timezone semantics and must be rechecked against
-hackathon or API guidance if FortyGuard clarifies request-time interpretation.
+strings. FortyGuard interprets `date_time.start_time` as AOI-local time and automatically infers
+timezone and daylight-saving offset from the AOI polygon coordinates. This behavior was confirmed
+by the FortyGuard Hackathon Team on 2026-08-25. The original aware orchestration instant is retained
+on the resulting domain observation.
 
 For a completed heatmap, ThermalShift uses the AOI `temperature_stats.mean` as its raw
 `TemperatureObservation`. Minimum and maximum remain descriptive result statistics; neither is the

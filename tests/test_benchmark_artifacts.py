@@ -149,6 +149,7 @@ def test_historical_provenance_separates_real_temperature_and_modeled_inputs(
     boundary = value["evidence_boundaries"]["evidence_classification"]
     assert "Ambient temperatures come from FortyGuard" in boundary
     assert "not real customer workloads" in boundary
+    assert "awaiting " + "confirmation" not in json.dumps(value)
 
 
 def test_comparisons_preserve_existing_fairness_and_negative_percentages() -> None:
@@ -220,6 +221,7 @@ def test_historical_markdown_classification(tmp_path: Path) -> None:
     assert "FORTYGUARD-BACKED HISTORICAL REPLAY" in rendered
     assert "REAL HISTORICAL AMBIENT TEMPERATURES + MODELED WORKLOADS" in rendered
     assert REQUEST_TIME_INTERPRETATION in rendered
+    assert "awaiting " + "confirmation" not in rendered
 
 
 def test_writers_create_output_directory(tmp_path: Path) -> None:

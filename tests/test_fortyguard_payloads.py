@@ -58,6 +58,42 @@ def test_timestamp_is_converted_to_site_timezone() -> None:
     assert payload["date_time"]["start_time"] == "23:30"
 
 
+@pytest.mark.parametrize(
+    ("instant", "expected_times"),
+    (
+        (
+            datetime(2024, 7, 15, 19, tzinfo=UTC),
+            {
+                "ashburn-va": "15:00",
+                "phoenix-az": "12:00",
+                "san-antonio-tx": "14:00",
+                "atlanta-ga": "15:00",
+            },
+        ),
+        (
+            datetime(2024, 1, 15, 7, tzinfo=UTC),
+            {
+                "ashburn-va": "02:00",
+                "phoenix-az": "00:00",
+                "san-antonio-tx": "01:00",
+                "atlanta-ga": "02:00",
+            },
+        ),
+    ),
+)
+def test_same_utc_instant_serializes_to_each_aoi_local_time(
+    instant: datetime, expected_times: dict[str, str]
+) -> None:
+    serialized = {
+        site.site_id: build_historical_heatmap_payload(site, instant)["date_time"][
+            "start_time"
+        ]
+        for site in get_default_sites()
+    }
+
+    assert serialized == expected_times
+
+
 @pytest.mark.parametrize("granularity", [60, 80, 100])
 def test_valid_granularity_is_accepted(granularity: int) -> None:
     payload = build_historical_heatmap_payload(

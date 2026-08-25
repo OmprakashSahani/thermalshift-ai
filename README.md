@@ -53,9 +53,13 @@ Collectors have explicit budgets for new Heatmap submissions; status GETs do not
 
 **There is no synthetic fallback for an incomplete FortyGuard historical replay.** If required cache inputs are missing, the replay command exits nonzero, runs no benchmark, writes no evidence artifacts, and does not interpolate or fabricate temperatures.
 
-### Request-time qualification
+### Request-time semantics
 
-ThermalShift currently serializes requested orchestration instants in the modeled site local timezone. FortyGuard input-timezone semantics are awaiting provider confirmation; historical cross-site synchronization claims remain qualified until that interpretation is confirmed.
+FortyGuard confirmed that Heatmap `date_time.start_time` is interpreted in the
+AOI local time and that timezone and daylight-saving offset are inferred from
+the polygon coordinates. ThermalShift therefore converts each requested
+orchestration UTC instant into the modeled site local time before serialization.
+Confirmed by the FortyGuard Hackathon Team on 2026-08-25.
 
 ## Modeled benchmark sites
 
